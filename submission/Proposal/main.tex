@@ -15,35 +15,39 @@
     
 		\LARGE{\textbf{STA380 Project Proposal}} \\
         \vspace{1em}
-        \Large{Bootstrap Estimation of Boston Housing Data} \\
+        \Large{Bootstrap, Jackknife, and Monte Carlo Estimation Using the Boston Housing Dataset} \\
         \vspace{1em}
-        \normalsize\textbf{Kangyi Huang} \\
+        \normalsize\textbf{Kangyi Huang, Qi Wang} \\
         \normalsize{xennia.huang@mail.utoronto.ca} \\
+        \normalsize{jackieqi.wang@mail.utoronto.ca} \\
         \vspace{1em}
         \normalsize{University of Toronto, Mississauga}
      
 	\end{center}
 
     	\section{Project Topic}
-         Bootstrap Estimation of Linear Regression Coefficients Using the Boston Housing Dataset
+         Bootstrap Estimate, Jackknife, and Monte Carlo Simulation of a Hypothesis Test (ANOVA) Using the Boston Housing Dataset
 
         \section{Simulation vs. Dataset}
-        The results will be from using the dataset: Boston Housing Dataset.
+        The results will be using the Boston Housing Dataset (from Harrison and Rubinfeld, 1978, "Hedonic prices and the demand for clean air," Journal of Environmental Economics and Management). For Bootstrap and Jackknife, we use non-parametric resampling on the observed data. For Monte Carlo, we simulate data under normal distributions with controlled parameters.
         
         \section{Project Details}
-        We will be using 3 introductory MCMC methods to simulate the bivariate Gaussian distribution:
+        We will be using three statistical methods applied to linear regression and hypothesis testing on the Boston Housing Dataset:
         \begin{itemize}
-            \item An independence Metropolis–Hastings algorithm
-            \item A random walk Metropolis–Hastings algorithm
-            \item A Gibbs Sampler
+            \item Bootstrap Estimate (Linear Regression): Study of bootstrap estimation of linear regression coefficients (intercept and slope) using the Boston Housing Dataset. OLS estimates from the full dataset serve as reference "true values". Bias and standard error of bootstrap estimates are assessed relative to these values. The following outputs will be provided:
+              \begin{itemize}  
+              \item Histograms of bootstrap distributions
+              \item Summary tables of mean, variance, bias, SE, and 95 percent percentile CIs
+              \item Comparisons to OLS results
+              \end{itemize}
+            \item Jackknife (Resampling): Application of delete-one jackknife on the same Boston Housing Dataset for fair comparison with bootstrap. OLS estimates from the full data serve as reference "true values". n leave-one-out replicates of intercept and slope form the jackknife distribution for bias and standard error estimation. The following outputs will be provided:
+            \begin{itemize}  
+              \item Histograms of leave-one-out estimates
+              \item Plots with error bars for bias and variability assessment
+              \item Comparisons to full-sample OLS results
+              \end{itemize}
+            \item 
         \end{itemize}
-        The following outputs will be provided:
-        \begin{itemize}
-            \item Scatter plot of the samples generated
-            \item Histogram and Q-Q plots to assess marginal normality
-            \item The generated mean and the covariance matrix
-        \end{itemize}
-
         \section{User Inputs (Shiny Components)}
         Users will be able to modify the following:
         \begin{enumerate}
@@ -58,8 +62,6 @@
             \item Be able to choose what information is presented, i.e., they can look at results from just 1 MCMC method, 2 MCMC methods, or all three at once.
             \item For the plots, be able to modify the colours.
         \end{enumerate}
-
-\end{normalsize}
 
 \nocite{*}
 \bibliographystyle{abbrvnat}

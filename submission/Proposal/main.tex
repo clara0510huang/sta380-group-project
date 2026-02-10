@@ -19,9 +19,10 @@
         \Large{Bootstrap Estimation of Boston Housing Data} \\
         \vspace{1em}
 
-        \normalsize\textbf{Kangyi Huang, Qi Wang,Jiawei Cao} \\
+        \normalsize\textbf{Kangyi Huang, Qi Wang, Dongshuo Yang, Jiawei Cao} \\
         \normalsize{xennia.huang@mail.utoronto.ca} \\
         \normalsize{jackieqi.wang@mail.utoronto.ca} \\
+        \normalsize{jimmyyang.yang@mail.utoronto.ca} \\
         \normalsize{jiawei.cao@mail.utoronto.ca} \\
 
 	\end{center}
@@ -30,14 +31,23 @@
          Bootstrap Estimation of Simple Linear Regression for the Boston Housing Dataset
 
         \section{Simulation vs. Dataset}
-        The project will use the Boston Housing Dataset from Harrison and Rubinfeld (1978), "Hedonic prices and the demand for clean air,” Journal of Environmental Economics and Management
+        The project will be using the Boston Housing Dataset, from Harrison and Rubinfeld, 1978, 
+        ``Hedonic prices and the demand for clean air” Journal of Environmental Economics and Management. 
+        We export the dataset to boston.csv and include it in the submission.
         
         \section{Project Details}
-        We will be using 3 introductory MCMC methods to simulate the bivariate Gaussian distribution:
+        This project be using resampling method, Bootstrap estimation, to estimate simple linear regression
+        coefficients (intercept and slope) using the Boston Housing Dataset, which provides 14 potential
+        predictors against the housing price in Boston. The result of the Bootstrap sampling distribution
+        will be used for contrasting and analyzing with the OLS estimates from the full dataset,
+        which serve as reference values for comparison. Bias and standard error of bootstrap estimates are
+        assessed relative to these values.
+        Details of implementation:
         \begin{itemize}
-            \item An independence Metropolis–Hastings algorithm
-            \item A random walk Metropolis–Hastings algorithm
-            \item A Gibbs Sampler
+            \item Original data: 506 cases
+            \item Bootstrap sample size: 506(same as original)
+            \item Number of repetition: 1000
+            \item Statistic: User-selected descriptive statistics on chosen variables (with default examples provided below)
         \end{itemize}
         The following outputs will be provided:
         \begin{itemize}

@@ -85,21 +85,28 @@
         \end{itemize}
 
         \section{User Inputs (Shiny Components)}
-        Users will be able to modify the following:
-        \begin{enumerate}
-            \item Setting the seed
-            \item Change the parameters, specifically, for $i \in \{1, 2\}, \mu_{i}, \sigma_{i}$ and correlation $\rho$.
-            \item Select the information presented: 
-                \begin{itemize}
-                    \item the mean and covariance matrix,
-                    \item histogram and Q-Q plot for marginal normality,
-                    \item and the scatterplot of the samples generated.
-                \end{itemize}
-            \item Be able to choose what information is presented, i.e., they can look at results from just 1 MCMC method, 2 MCMC methods, or all three at once.
-            \item For the plots, be able to modify the colours.
-        \end{enumerate}
+Users will be able to modify the following:
+\begin{enumerate}
+  \item Setting the seed
+  \item Select the following features to predict:
+  \begin{itemize}
+    \item Any variable (e.g., MEDV, LSTAT, RM, CRIM, AGE, NOX, etc.)
+    \item One or more descriptive statistics (e.g., median, mean, sd, IQR, etc.)
+    \item Optional: Pearson correlation between any two selected variables (e.g., corr(MEDV, LSTAT), corr(MEDV, RM))
+  \end{itemize}
+  \item Select the information presented:
+  \begin{itemize}
+    \item[-] Bootstrap Sampling Distributions' histogram summary
+    \item[-] Numerical Summary of Bootstrap Estimates
+    \item[-] Boxplot of Bootstrap vs.\ OLS Confidence Intervals
+  \end{itemize}
+  \item For the plots, be able to modify the colours.
+\end{enumerate}
 
 
+
+\section*{AI Statement}
+There is no AI utilization for each part in this proposal.
 
 \nocite{*}
 \bibliographystyle{abbrvnat}

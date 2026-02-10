@@ -54,9 +54,34 @@
         \end{itemize}
         The following outputs will be provided:
         \begin{itemize}
-            \item Scatter plot of the samples generated
-            \item Histogram and Q-Q plots to assess marginal normality
-            \item The generated mean and the covariance matrix
+            \item	Bootstrap Sampling Distributions’ histogram summary:
+                    \begin{itemize}
+            \item	Histogram of beta 1 with OLS reference line
+              \begin{itemize}
+                \item	A histogram showing the bootstrap estimation distributions of the size of resampling of the slopes compared with the OLS slope. 
+              \end{itemize}
+              \item	Histogram of bootstrap estimation for beta 0:
+            \begin{itemize}
+                \item	A histogram showing the bootstrap estimation distributions of the size of resampling of the intercepts, compared with the OLS Intercept.
+              \end{itemize}
+                    \end{itemize}
+
+            
+            \item Numerical Summary of Bootstrap Estimates 
+             \begin{itemize}
+            \item Which will be provided with the following:
+            \begin{itemize}
+                \item	bootstrap mean
+                \item	bootstrap SE
+                \item	Bias (relative to the OLS)
+                \item	MSE = variance + Bias$^2$
+              \end{itemize}
+              \item We also provided the Bias-variance tradeoff to displace the difference between them more intuitively
+            \end{itemize}
+            \item	Boxplot of Bootstrap vs. OLS Confidence Intervals:
+            \begin{itemize}
+                \item	Visual comparison of the given alpha confidence interval derived from Bootstrap versus the OLS distribution.
+              \end{itemize}
         \end{itemize}
 
         \section{User Inputs (Shiny Components)}

@@ -1,0 +1,12 @@
+The main thing to account for is that there is no such thing as the variance-bias 
+tradeoff, even though this is often taught in ML courses and mentioned in 
+textbooks either.
+
+You can read about it here:
+https://www.argmin.net/p/overfitting-to-theories-of-overfitting 
+
+I'm fine with you mentioning it, since many people make this mistake (even ML
+"experts"), but it's generally good to know these things.
+
+Great topic and great proposal! 1/1
+

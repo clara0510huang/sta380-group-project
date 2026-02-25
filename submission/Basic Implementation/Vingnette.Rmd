@@ -8,14 +8,29 @@ vignette: >
 bibliography: bibliography.bib
 nocite: "@*"
 ---
-```{r, include = FALSE}
+
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 6,
+  message = FALSE,
+  warning = FALSE
 )
-knitr::opts_chunk$set(fig.width=7, fig.height=6) 
 ```
 
 # AI Statement
 
+No AI tools were used in the generation of this vignette. All code and writing were produced by the authors.
+
+# Overview
+
+# Data
+
+# Functions and Usage
+
+# Bootstrap + Linear Regression Assumptions
+
 # Bibliography
+

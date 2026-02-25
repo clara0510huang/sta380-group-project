@@ -160,6 +160,22 @@ plot_ci_box(ci_list, term = "intercept")
 plot_ci_box(ci_list, term = "slope")
 ```
 
+### Bootstrap joint distribution: intercept vs slope
+
+This scatter plot shows the **bootstrap replicates** of the pair (intercept, slope), along with:
+- Blue points: individual bootstrap estimates
+- Density contours: to show concentration
+- Orange diamond: OLS point estimate
+- Green asterisk: bootstrap mean
+- Red dashed arrow: direction and magnitude of bias (bootstrap mean → OLS)
+
+Higher density areas indicate more probable parameter values under resampling.
+The arrow visualizes any systematic bias in the OLS estimates.
+
+```{r bootstrap-joint-scatter, fig.width=8, fig.height=7}
+plot_lr_bootstrap_scatter(ols_slr, boot_slr)
+```
+
 ## Linear regression assumptions (diagnostics)
 
 We use standard diagnostic plots to check:

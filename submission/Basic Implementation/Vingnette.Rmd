@@ -60,30 +60,17 @@ head(data, 5)
 ```{r}
 summary(data[, c(predictor, respond)])
 ```
+### IQR Visualization: Predictor vs Response
 
-### Visualizing IQR for Selected Variables
+```{r iqr-summary, fig.width=8, fig.height=5}
+plot_iqr_boxplot(data, predictor, respond)
+```
 
-```{r iqr-boxplot-example, fig.width=8, fig.height=5, message=FALSE}
-iqr_result <- plot_iqr_boxplot(
-  data      = data,
-  predictor = "lstat",
-  respond   = "medv",
-  col_predictor = "lightblue",
-  col_respond   = "lightgreen"
-)
+### Bootstrap Correlation Distribution: Predictor vs Response
 
-# Display numerical IQR values in a table
-knitr::kable(
-  data.frame(
-    Variable = c("Predictor (lstat)", "Response (medv)"),
-    IQR      = c(iqr_result$iqr_predictor, iqr_result$iqr_respond)
-  ),
-  digits = 2,
-  caption = "Interquartile Range (IQR) for Selected Variables"
-)
+```{r corr-bootstrap, fig.width=7, fig.height=6}
+plot_bootstrap_correlation(data, predictor, respond)
 
-# Render the boxplot (knitr will display it automatically)
-print(iqr_result$plot)
 ```
 
 ### Scatterplot of response vs predictor

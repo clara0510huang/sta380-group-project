@@ -38,7 +38,7 @@ ols_estimators<-function(data,predictor,respond){
     beta0 = unname(coef(lr_model)[1]),
     beta1 = unname(coef(lr_model)[2]),
     ols_conf_int = confint(lr_model, level = 0.95))
-    model_summary <- summary(lr_model)
+  model_summary <- summary(lr_model)
   return(ols_slr)
 }
 
@@ -411,7 +411,7 @@ plot_ci_box <- function(ci_list, term = c("intercept", "slope"), main = NULL,
                         #col_ols = "red",
                         #decomp_data = NULL, 
                         #bar_palette = "Set2"
-                        ) {
+) {
   # Validate term argument
   term <- match.arg(term)
   
@@ -490,30 +490,30 @@ plot_ci_box <- function(ci_list, term = c("intercept", "slope"), main = NULL,
   # if (!is.null(decomp_data)) {
   
   #plot_data <- data.frame(
-   # term = rep(decomp_data$term, 3),
-    #component = factor(rep(c("Bias²", "Variance", "MSE"), each = 2),
-     #                  levels = c("Bias²", "Variance", "MSE")),
-    #value = c(decomp_data$bias^2, decomp_data$variance, decomp_data$mse)
+  # term = rep(decomp_data$term, 3),
+  #component = factor(rep(c("Bias²", "Variance", "MSE"), each = 2),
+  #                  levels = c("Bias²", "Variance", "MSE")),
+  #value = c(decomp_data$bias^2, decomp_data$variance, decomp_data$mse)
   #)
   
   #p <- ggplot(plot_data, aes(x = term, y = value, fill = component)) +
-    #geom_col(position = "dodge") +
-    #scale_fill_brewer(palette = bar_palette) +
-    #labs(
-     #title = "Bias² - Variance - MSE Decomposition (Bootstrap)",
-      #subtitle = sprintf("For %s", param_name),
-      #y = "Value",
-      #x = "Coefficient"
-    #) +
-    #theme_minimal(base_size = 13) +
-    #theme(
-      #legend.position = "top",
-     #plot.title = element_text(hjust = 0.5, face = "bold"),
-     # plot.subtitle = element_text(hjust = 0.5)
-    #)
+  #geom_col(position = "dodge") +
+  #scale_fill_brewer(palette = bar_palette) +
+  #labs(
+  #title = "Bias² - Variance - MSE Decomposition (Bootstrap)",
+  #subtitle = sprintf("For %s", param_name),
+  #y = "Value",
+  #x = "Coefficient"
+  #) +
+  #theme_minimal(base_size = 13) +
+  #theme(
+  #legend.position = "top",
+  #plot.title = element_text(hjust = 0.5, face = "bold"),
+  # plot.subtitle = element_text(hjust = 0.5)
+  #)
   
   #print(p)  
-#}
+  #}
   # Return data invisibly
   invisible(dat)
 }

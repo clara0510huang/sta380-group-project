@@ -488,3 +488,97 @@ plot_lr_bootstrap_scatter <- function(ols_slr,
   
   return(p)
 }
+
+#' Calculate IQR and Generate Boxplot for Selected Variables
+#'
+#' Computes the Interquartile Range (IQR = Q3 - Q1) for the user-selected 
+#' predictor and response variables from the Boston Housing dataset.
+#' Generates a side-by-side boxplot to visualize the IQR, median, and outliers.
+#'
+#' @param data A data.frame containing the Boston Housing data
+#' @param predictor Character string: name of the predictor variable (e.g., "lstat")
+#' @param respond Character string: name of the response variable (e.g., "medv")
+#' @param col_predictor Fill color for the predictor boxplot (default: "lightblue")
+#' @param col_respond Fill color for the response boxplot (default: "lightgreen")
+#' @param main_title Optional title for the plot (default: auto-generated)
+#' @param save_plot Logical: whether to save the plot as a PNG file (default: FALSE)
+#' @param filename Character string: name of the saved file if save_plot = TRUE
+#' @param width Numeric: plot width in inches when saving (default: 8)
+#' @param height Numeric: plot height in inches when saving (default: 5)
+#'
+#' @return A list containing:
+#'   \item{iqr_predictor}{IQR of the predictor variable}
+#'   \item{iqr_respond}{IQR of the response variable}
+#'   \item{plot}{The ggplot object (can be printed or saved)}
+#'
+#' @importFrom ggplot2 ggplot aes geom_boxplot labs theme_minimal annotate scale_fill_manual
+#' @importFrom stats IQR median
+#' @export
+plot_iqr_boxplot <- function(data,
+                             predictor,
+                             respond,
+                             col_predictor = "lightblue",
+                             col_respond   = "lightgreen",
+                             main_title    = NULL,
+                             save_plot     = FALSE,
+                             filename      = "iqr_boxplot.png",
+                             width = 8,
+                             height = 5) {
+  
+  # Input validation
+  if (!predictor %in% names(data)) {
+    stop(paste("Predictor variable not found in dataset:", predictor))
+  }
+  if (!respond %in% names(data)) {
+    stop(paste("Response variable not found in dataset:", respond))
+  }
+  
+  # Calculate IQR values
+  iqr_p <- IQR(data[[predictor]], na.rm = TRUE)
+  iqr_r <- IQR(data[[respond]],   na.rm = TRUE)
+  
+  # Prepare data in long format for plotting
+  df_long <- data.frame(
+    Variable = factor(c(rep(paste("Predictor:", predictor), nrow(data)),
+                        rep(paste("Response:", respond), nrow(data))),
+                      levels = c(paste("Predictor:", predictor), paste("Response:", respond))),
+    Value    = c(data[[predictor]], data[[respond]])
+  )
+  
+  # Set default title if not provided
+  if (is.null(main_title)) {
+    main_title <- "IQR Visualization: Predictor vs Response (Boston Housing Dataset)"
+  }
+  
+  # Create the boxplot using ggplot2
+  p <- ggplot(df_long, aes(x = Variable, y = Value, fill = Variable)) +
+    geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2.5,
+                 alpha = 0.8) +
+    scale_fill_manual(values = c(col_predictor, col_respond)) +
+    labs(title    = main_title,
+         subtitle = sprintf("IQR (Predictor) = %.2f    |    IQR (Response) = %.2f", iqr_p, iqr_r),
+         x        = NULL,
+         y        = "Value") +
+    theme_minimal(base_size = 14) +
+    theme(legend.position = "none",
+          plot.title      = element_text(face = "bold", hjust = 0.5),
+          plot.subtitle   = element_text(hjust = 0.5, color = "gray50")) +
+    # Annotate IQR values above each box
+    annotate("text", x = 1, y = median(data[[predictor]]) + 1.2 * iqr_p,
+             label = sprintf("IQR ≈ %.2f", iqr_p), color = "darkblue", size = 5) +
+    annotate("text", x = 2, y = median(data[[respond]]) + 1.2 * iqr_r,
+             label = sprintf("IQR ≈ %.2f", iqr_r), color = "darkgreen", size = 5)
+  
+  # Optionally save the plot to file
+  if (save_plot) {
+    ggsave(filename, plot = p, width = width, height = height, dpi = 300)
+    message("Boxplot saved to: ", filename)
+  }
+  
+  # Return results invisibly
+  invisible(list(
+    iqr_predictor = iqr_p,
+    iqr_respond   = iqr_r,
+    plot          = p
+  ))
+}

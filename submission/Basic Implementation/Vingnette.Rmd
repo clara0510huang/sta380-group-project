@@ -61,6 +61,35 @@ head(data, 5)
 summary(data[, c(predictor, respond)])
 ```
 
+### Visualizing IQR for Selected Variables
+
+Example with predictor = "lstat" and respond = "medv"
+
+```{r iqr-boxplot-example, fig.width=8, fig.height=5, message=FALSE}
+# Assuming 'data' is already loaded and main.R is sourced
+
+iqr_result <- plot_iqr_boxplot(
+  data      = data,
+  predictor = "lstat",
+  respond   = "medv",
+  col_predictor = "lightblue",
+  col_respond   = "lightgreen"
+)
+
+# Display numerical IQR values in a table
+knitr::kable(
+  data.frame(
+    Variable = c("Predictor (lstat)", "Response (medv)"),
+    IQR      = c(iqr_result$iqr_predictor, iqr_result$iqr_respond)
+  ),
+  digits = 2,
+  caption = "Interquartile Range (IQR) for Selected Variables"
+)
+
+# Render the boxplot (knitr will display it automatically)
+print(iqr_result$plot)
+```
+
 ### Scatterplot of response vs predictor
 
 ```{r}

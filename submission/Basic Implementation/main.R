@@ -2,9 +2,7 @@ library(boot)
 library(readr)
 library(ggplot2)
 library(testthat)
-library(car)
-library(tidyr)
-library(dplyr)
+#library(car)
 
 # Core functions for STA380 checkpoint: bootstrap estimation for simple linear regression
 
@@ -538,5 +536,5 @@ ci_list <- bootstrap_slr_ci(boot_slr, ols_slr, level = 0.95)
 plot_ci_box(ci_list, term = "intercept")
 plot_ci_box(ci_list, term = "slope")
 plot_lr_bootstrap_scatter(ols_slr, boot_slr)
-cat("\nAll five plots have been drawn. Please check the Plots pane in RStudio.\n")
+# cat("\nAll five plots have been drawn. Please check the Plots pane in RStudio.\n")
 

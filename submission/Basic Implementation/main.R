@@ -3,7 +3,9 @@ library(readr)
 library(ggplot2)
 library(testthat)
 library(car)
+
 # Core functions for STA380 checkpoint: bootstrap estimation for simple linear regression
+
 # Assign the data from the csv file
 if (interactive()) {
   data <- read_csv("submission/Basic Implementation/BostonHousing.csv")
@@ -152,6 +154,7 @@ calculate_correlation <- function(data, predictor, respond) {
 #' @param xlab Optional x-axis label. If NULL, generates automatic label
 #' @param col_hist Color of histogram bars. Set "lightblue" as default.
 #' @param col_ols Color of OLS reference line. Set "red" as default.
+#' @param ... Additional args passed to hist()
 #' @return Invisibly returns the histogram object
 #' @example
 #' respond <- "medv"
@@ -167,7 +170,7 @@ plot_boot_hist <- function(boot_slr, ols_slr,
                            main = NULL,
                            xlab = NULL,
                            col_hist = "lightblue",
-                           col_ols = "red") {
+                           col_ols = "red",...) {
   
   # vaild argument
   term <- match.arg(term)
@@ -272,6 +275,7 @@ bootstrap_slr_ci <- function(boot_slr, ols_slr, level = 0.95) {
 #' respond <- "medv"
 #' predictor <-"lstat"
 #' ols_slr <- ols_estimators(data, predictor, respond)
+#' boot_slr<-bootstrap_slr_summary(data, R = 1000,seed = NULL,predictor,respond)
 #' ci_list<- bootstrap_slr_ci(boot_slr, ols_slr, level = 0.95)
 #' plot_ci_box(ci_list, "intercept")
 plot_ci_box <- function(ci_list, term = c("intercept", "slope"), main = NULL,

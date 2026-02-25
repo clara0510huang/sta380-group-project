@@ -102,7 +102,7 @@ cor_res <- calculate_correlation(data, predictor, respond)
 cor_res
 ```
 
-##Simple Linear Regression
+## Simple Linear Regression
 
 ### OLS estimation
 
@@ -164,7 +164,7 @@ names(boot_slr)
 ```
 
 
-##Comparative Analysis between Two Models
+## Comparative Analysis between Two Models
 
 ### Bootstrap summary table (bias / variance / MSE)
 
@@ -199,12 +199,29 @@ plot_ci_box(ci_list, term = "intercept")
 ```{r}
 plot_ci_box(ci_list, term = "slope")
 ```
+### Bootstrap joint distribution: intercept vs slope
 
-# Bibliography
+This figure visualizes the joint sampling distribution of the intercept and slope using the Bootstrap method with 1000 resamples.
+We can identify the following message:
+
+Parameter correlation: The tilt direction of the point cloud shows the trade-off between the intercept and slope.
+
+Bias magnitude: The arrow length reflects the degree of deviation between the Bootstrap mean and the OLS estimate.
+
+Model stability: The dispersion of the point cloud corresponds to the variance of the parameter estimates.
+
+Estimation reliability: Whether the orange rhombus falls within a high-density region indicates the representativeness of the original estimate.
+
+```{r bootstrap-joint-scatter, fig.width=8, fig.height=7}
+plot_lr_bootstrap_scatter(ols_slr, boot_slr)
+```
+
+## AI Statement
+
+(Place your final AI statement here according to your course policy.)
+
+## Bibliography
 
 ::: {#refs}
 :::
 
-# AI Statement
-
-(Place your final AI statement here according to your course policy.)

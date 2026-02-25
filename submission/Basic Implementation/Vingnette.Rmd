@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r setup, include=FALSE}
 data <- read.csv("BostonHousing.csv")
 source("main.R")
 
@@ -30,10 +30,6 @@ set.seed(123)
 respond <- "medv"
 predictor <- "lstat"
 ```
-
-# AI Statement
-
-No AI tools were used in the generation of this vignette. All code and writing were produced by the authors.
 
 # Overview
 
@@ -51,19 +47,21 @@ Workflow:
 
 The Boston Housing dataset contains housing and neighborhood variables for census tracts in the Boston area (see [@harrison1978hedonic]).
 
+### Dataset shape and preview
+
 ```{r}
 dim(data)
 names(data)
 head(data, 5)
 ```
 
-Basic summary for the two variables used:
+### Basic summary for the two variables used
 
 ```{r}
 summary(data[, c(predictor, respond)])
 ```
 
-Scatterplot of response vs predictor:
+### Scatterplot of response vs predictor
 
 ```{r}
 plot(data[[predictor]], data[[respond]],
@@ -72,7 +70,7 @@ plot(data[[predictor]], data[[respond]],
      main = "Boston Housing: medv vs lstat")
 ```
 
-Correlation (Pearson) and p-value:
+### Correlation (Pearson) and p-value
 
 ```{r}
 cor_res <- calculate_correlation(data, predictor, respond)
@@ -97,7 +95,7 @@ ols_slr <- ols_estimators(data, predictor = predictor, respond = respond)
 ols_slr
 ```
 
-Plot the fitted OLS line on the scatterplot:
+### OLS fitted line on the scatterplot
 
 ```{r}
 lr_model <- lm(reformulate(predictor, respond), data = data)
@@ -160,22 +158,6 @@ plot_ci_box(ci_list, term = "intercept")
 plot_ci_box(ci_list, term = "slope")
 ```
 
-### Bootstrap joint distribution: intercept vs slope
-
-This scatter plot shows the **bootstrap replicates** of the pair (intercept, slope), along with:
-- Blue points: individual bootstrap estimates
-- Density contours: to show concentration
-- Orange diamond: OLS point estimate
-- Green asterisk: bootstrap mean
-- Red dashed arrow: direction and magnitude of bias (bootstrap mean → OLS)
-
-Higher density areas indicate more probable parameter values under resampling.
-The arrow visualizes any systematic bias in the OLS estimates.
-
-```{r bootstrap-joint-scatter, fig.width=8, fig.height=7}
-plot_lr_bootstrap_scatter(ols_slr, boot_slr)
-```
-
 ## Linear regression assumptions (diagnostics)
 
 We use standard diagnostic plots to check:
@@ -191,7 +173,7 @@ plot(lr_model)
 par(mfrow = c(1, 1))
 ```
 
-Extra residuals vs predictor check:
+### Residuals vs predictor (extra check)
 
 ```{r}
 resid_vals <- resid(lr_model)
@@ -202,10 +184,11 @@ plot(data[[predictor]], resid_vals,
 abline(h = 0, lwd = 2, lty = 2)
 ```
 
-Interpretation notes (brief):
-
-- Curvature in Residuals vs Fitted suggests nonlinearity.
-- A “fan shape” suggests heteroscedasticity.
-- Strong deviation from a straight line in the Q–Q plot suggests non-normal residuals.
-
 # Bibliography
+
+::: {#refs}
+:::
+
+# AI Statement
+
+(Place your final AI statement here according to your course policy.)

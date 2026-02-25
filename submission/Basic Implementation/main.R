@@ -465,7 +465,7 @@ plot_lr_bootstrap_scatter <- function(ols_slr,
                color = color_mean, size = size_mean, shape = 8) +
     
     labs(
-      title = "LR vs Bootstrap: Parameter Estimate Distribution",
+      title = "Comparison of Bootstrap estimation and OLS estimation",
       subtitle = paste0("Points: Bootstrap estimates (R=", nrow(boot_df), 
                         " replicates)\n",
                         "Diamond: OLS estimates | Asterisk: Bootstrap means"),

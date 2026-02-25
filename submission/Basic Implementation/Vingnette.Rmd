@@ -2,7 +2,7 @@
 title: "Bootstrap Estimation for Boston Housing"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Example Vignette}
+  %\VignetteIndexEntry{Bootstrap Estimation for Boston Housing}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography: bibliography.bib
@@ -14,14 +14,21 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   warning = FALSE,
-  message = FALSE
+  message = FALSE,
+  fig.width = 7,
+  fig.height = 6
 )
-knitr::opts_chunk$set(fig.width=7, fig.height=6) 
 ```
 
 ```{r setup}
-data<-read.csv("BostonHousing.csv")
+data <- read.csv("BostonHousing.csv")
 source("main.R")
+
+set.seed(123)
+
+# Choose variables for SLR
+respond <- "medv"
+predictor <- "lstat"
 ```
 
 # AI Statement
@@ -30,11 +37,159 @@ No AI tools were used in the generation of this vignette. All code and writing w
 
 # Overview
 
+This vignette demonstrates bootstrap estimation for a **simple linear regression (SLR)** using the Boston Housing dataset.
+We model the relationship between the response variable `medv` and the predictor `lstat`, and then use bootstrap resampling
+to estimate sampling variability, bias, and confidence intervals for the intercept and slope.
+
+Workflow:
+1) fit OLS SLR and obtain standard (Wald) confidence intervals  
+2) bootstrap the SLR coefficients and summarize bias/SE/variance/MSE  
+3) compare bootstrap percentile CIs to OLS CIs  
+4) check standard linear regression assumptions with diagnostic plots  
+
 # Data
+
+The Boston Housing dataset contains housing and neighborhood variables for census tracts in the Boston area (see [@harrison1978hedonic]).
+
+```{r}
+dim(data)
+names(data)
+head(data, 5)
+```
+
+Basic summary for the two variables used:
+
+```{r}
+summary(data[, c(predictor, respond)])
+```
+
+Scatterplot of response vs predictor:
+
+```{r}
+plot(data[[predictor]], data[[respond]],
+     xlab = predictor,
+     ylab = respond,
+     main = "Boston Housing: medv vs lstat")
+```
+
+Correlation (Pearson) and p-value:
+
+```{r}
+cor_res <- calculate_correlation(data, predictor, respond)
+cor_res
+```
 
 # Functions and Usage
 
+All group functions are sourced from `main.R`. Key functions used here include:
+
+- `ols_estimators(data, predictor, respond)`  
+- `bootstrap_slr_summary(data, R, seed, predictor, respond)`  
+- `bootstrap_slr(boot_slr, ols_slr)`  
+- `bootstrap_slr_ci(boot_slr, ols_slr, level)`  
+- `plot_boot_hist(boot_slr, ols_slr, term = c("intercept","slope"))`  
+- `plot_ci_box(ci_list, term = c("intercept","slope"))`
+
+## OLS estimation
+
+```{r}
+ols_slr <- ols_estimators(data, predictor = predictor, respond = respond)
+ols_slr
+```
+
+Plot the fitted OLS line on the scatterplot:
+
+```{r}
+lr_model <- lm(reformulate(predictor, respond), data = data)
+
+plot(data[[predictor]], data[[respond]],
+     xlab = predictor,
+     ylab = respond,
+     main = "SLR Fit: OLS line on data")
+abline(lr_model, lwd = 2, lty = 2)
+```
+
 # Bootstrap + Linear Regression Assumptions
 
-# Bibliography
+## Bootstrap estimation
 
+We run bootstrap with `R = 1000` resamples (see [@davison1997bootstrap; @boot2025]).
+
+```{r}
+boot_slr <- bootstrap_slr_summary(
+  data = data,
+  R = 1000,
+  seed = 123,
+  predictor = predictor,
+  respond = respond
+)
+names(boot_slr)
+```
+
+### Bootstrap summary table (bias / variance / MSE)
+
+```{r}
+boot_table <- bootstrap_slr(boot_slr, ols_slr)
+knitr::kable(boot_table, digits = 4)
+```
+
+### Bootstrap histograms with OLS reference
+
+```{r}
+plot_boot_hist(boot_slr, ols_slr, term = "intercept")
+```
+
+```{r}
+plot_boot_hist(boot_slr, ols_slr, term = "slope")
+```
+
+### Confidence interval comparison (Bootstrap percentile vs OLS Wald)
+
+```{r}
+ci_list <- bootstrap_slr_ci(boot_slr, ols_slr, level = 0.95)
+
+ci_list$boot_perc
+ci_list$ols_wald
+```
+
+```{r}
+plot_ci_box(ci_list, term = "intercept")
+```
+
+```{r}
+plot_ci_box(ci_list, term = "slope")
+```
+
+## Linear regression assumptions (diagnostics)
+
+We use standard diagnostic plots to check:
+
+1) **Linearity**  
+2) **Independence**  
+3) **Homoscedasticity**  
+4) **Normality of residuals**  
+
+```{r}
+par(mfrow = c(2, 2))
+plot(lr_model)
+par(mfrow = c(1, 1))
+```
+
+Extra residuals vs predictor check:
+
+```{r}
+resid_vals <- resid(lr_model)
+plot(data[[predictor]], resid_vals,
+     xlab = predictor,
+     ylab = "Residuals",
+     main = "Residuals vs Predictor")
+abline(h = 0, lwd = 2, lty = 2)
+```
+
+Interpretation notes (brief):
+
+- Curvature in Residuals vs Fitted suggests nonlinearity.
+- A “fan shape” suggests heteroscedasticity.
+- Strong deviation from a straight line in the Q–Q plot suggests non-normal residuals.
+
+# Bibliography

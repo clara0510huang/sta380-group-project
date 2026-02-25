@@ -28,23 +28,6 @@ test_that("ols_estimators returns correct structure and values", {
   expect_true(result$ols_conf_int[1, 2] >= result$beta0)  # upper bound >= estimate
 })
 
-test_that("boot_fn works correctly with indices", {
-  # Create indices for bootstrap sample (with replacement)
-  set.seed(123)
-  indices <- sample(1:nrow(test_data), nrow(test_data), replace = TRUE)
-  
-  result <- boot_fn(test_data, indices, "LSTAT", "MEDV")
-  
-  # Check that result is a named numeric vector of length 2
-  expect_true(is.numeric(result))
-  expect_equal(length(result), 2)
-  expect_equal(names(result), c("(Intercept)", "LSTAT"))
-  
-  # Compare with direct lm on the bootstrap sample
-  direct_result <- lm(MEDV ~ LSTAT, data = test_data[indices, ])
-  expect_equal(unname(result), unname(coef(direct_result)))
-})
-
 test_that("bootstrap_slr_summary runs with default parameters", {
   # Create a simple model first
   
@@ -54,8 +37,7 @@ test_that("bootstrap_slr_summary runs with default parameters", {
     predictor = "LSTAT",
     respond = "MEDV",
     R = 100,
-    seed = 123,
-    boot_fn = boot_fn
+    seed = 123
   )
   
   # Check structure
@@ -75,15 +57,15 @@ test_that("bootstrap_slr_summary runs with default parameters", {
 test_that("bootstrap_slr_summary respects seed for reproducibility", {
   
   # Run with same seed
-  result1 <- bootstrap_slr_summary(test_data, predictor = "LSTAT", respond = "MEDV", R = 50, seed = 42, boot_fn)
-  result2 <- bootstrap_slr_summary(test_data, predictor = "LSTAT", respond = "MEDV", R = 50, seed = 42, boot_fn)
+  result1 <- bootstrap_slr_summary(test_data, predictor = "LSTAT", respond = "MEDV", R = 50, seed = 42)
+  result2 <- bootstrap_slr_summary(test_data, predictor = "LSTAT", respond = "MEDV", R = 50, seed = 42)
   
   # Results should be identical with same seed
   expect_equal(result1$boot_b0_star, result2$boot_b0_star)
   expect_equal(result1$boot_b1_star, result2$boot_b1_star)
   
   # Run with different seed
-  result3 <- bootstrap_slr_summary(test_data, predictor = "LSTAT", respond = "MEDV", R = 50, seed = 99, boot_fn)
+  result3 <- bootstrap_slr_summary(test_data, predictor = "LSTAT", respond = "MEDV", R = 50, seed = 99)
   
   # Results should be different with different seed
   expect_false(identical(result1$boot_b0_star, result3$boot_b0_star))
@@ -91,7 +73,7 @@ test_that("bootstrap_slr_summary respects seed for reproducibility", {
 
 test_that("bootstrap_slr creates correct summary table", {
   ols_result <- ols_estimators(test_data, predictor = "LSTAT", respond = "MEDV")
-  boot_result <- bootstrap_slr_summary(test_data, predictor = "LSTAT", respond = "MEDV", R = 100, seed = 123, boot_fn)
+  boot_result <- bootstrap_slr_summary(test_data, predictor = "LSTAT", respond = "MEDV", R = 100, seed = 123)
   
   summary_table <- bootstrap_slr(boot_result, ols_result)
   
@@ -118,7 +100,7 @@ test_that("bootstrap_slr creates correct summary table", {
 
 test_that("bootstrap_slr_ci returns correctly structured confidence intervals", {
   ols_result <- ols_estimators(test_data, predictor = "LSTAT", respond = "MEDV")
-  boot_result <- bootstrap_slr_summary(test_data, predictor = "LSTAT", respond = "MEDV", R = 200, seed = 123, boot_fn)
+  boot_result <- bootstrap_slr_summary(test_data, predictor = "LSTAT", respond = "MEDV", R = 200, seed = 123)
   ci_result <- bootstrap_slr_ci(boot_result, ols_result, level = 0.95)
   
   # Check structure
@@ -136,7 +118,7 @@ test_that("bootstrap_slr_ci returns correctly structured confidence intervals", 
 
 test_that("plot_boot_hist runs without errors", {
   ols_result <- ols_estimators(test_data, predictor = "LSTAT", respond = "MEDV")
-  boot_result <- bootstrap_slr_summary(test_data, predictor = "LSTAT", respond = "MEDV", R = 100, seed = 123, boot_fn)
+  boot_result <- bootstrap_slr_summary(test_data, predictor = "LSTAT", respond = "MEDV", R = 100, seed = 123)
   
   # Test that plot function runs without errors
   expect_error(
@@ -152,7 +134,7 @@ test_that("plot_boot_hist runs without errors", {
 
 test_that("plot_ci_box runs without errors", {
   ols_result <- ols_estimators(test_data, predictor = "LSTAT", respond = "MEDV")
-  boot_result <- bootstrap_slr_summary(test_data, predictor = "LSTAT", respond = "MEDV", R = 200, seed = 123, boot_fn)
+  boot_result <- bootstrap_slr_summary(test_data, predictor = "LSTAT", respond = "MEDV", R = 200, seed = 1230)
   ci_list <- bootstrap_slr_ci(boot_result, ols_result)
   
   # Test plot functions
@@ -178,7 +160,7 @@ test_that("Functions handle edge cases appropriately", {
   expect_equal(result$beta1, 1, tolerance = 0.05)
   
   # bootstrap with small R
-  boot_result <- bootstrap_slr_summary(tiny_data, predictor = "LSTAT", respond = "MEDV", R = 10, seed = 123, boot_fn)
+  boot_result <- bootstrap_slr_summary(tiny_data, predictor = "LSTAT", respond = "MEDV", R = 10, seed = 123)
   expect_equal(length(boot_result$boot_b0_star), 10)
   
   # Test with different variable names
@@ -200,4 +182,27 @@ test_that("bootstrap_slr_summary syntax is correct", {
   typo_line <- grep("boot_slr < - list", source_file)
   expect_equal(length(typo_line), 0, 
                info = "Found 'boot_slr < - list' typo in bootstrap_slr_summary function")
+})
+
+test_that("calculate_correlation returns correct structure and values", {
+  
+  res <- calculate_correlation(test_data, "LSTAT", "MEDV")
+  # check whether returns a list
+  expect_true(is.list(res))
+  expect_true(all(c("correlation", "p_value") %in% names(res)))
+  
+  # Check whether returns a number
+  expect_true(is.numeric(res$correlation))
+  expect_true(is.numeric(res$p_value))
+  
+  # Corr between -1 to 1
+  expect_true(res$correlation >= -1 && res$correlation <= 1)
+})
+
+test_that("plot_lr_bootstrap_scatter runs without errors", {
+  
+  ols_result <- ols_estimators(test_data, "LSTAT", "MEDV")
+  boot_result <- bootstrap_slr_summary(data = test_data, predictor = "LSTAT", respond = "MEDV", R = 100, seed = 123)
+  
+  expect_error(plot_lr_bootstrap_scatter(ols_result, boot_result), NA)
 })

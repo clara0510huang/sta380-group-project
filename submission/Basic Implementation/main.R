@@ -35,8 +35,8 @@ ols_estimators<-function(data,predictor,respond){
   lr_model <- lm(reformulate(predictor, respond), data = data)
   model_summary <- summary(lr_model)
   ols_slr <- list(
-    beta0 = coef(lr_model)[1],
-    beta1 = coef(lr_model)[2],
+    beta0 = unname(coef(lr_model)[1]),
+    beta1 = unname(coef(lr_model)[2]),
     ols_conf_int = confint(lr_model, level = 0.95))
     model_summary <- summary(lr_model)
   return(ols_slr)
@@ -68,7 +68,7 @@ bootstrap_slr_summary <- function(data, R = 1000,seed = NULL,
                        model <- lm(reformulate(predictor, respond), data = d)
                        return(coef(model))
                      },
-                     R = 1000)
+                     R = R)
   boot_slr <- list(
     boot_b0_star = boot_model$t[,1],
     boot_b1_star = boot_model$t[,2],
@@ -488,53 +488,3 @@ plot_lr_bootstrap_scatter <- function(ols_slr,
   
   return(p)
 }
-
-# ────────────────────────────────────────────────────────────────
-# Execution and plotting section (interactive color customization)
-# ────────────────────────────────────────────────────────────────
-if (!exists("data")) {
-  stop("Data frame 'data' does not exist. Please load BostonHousing.csv first.")
-}
-predictor <- "lstat"
-respond <- "medv"
-R <- 2000
-seed <- 20250224
-# cat("\n=== Customize colors for the five plots (press Enter for default) ===\n\n")
-# hist_col_default <- "lightblue"
-# ols_line_col_default <- "red"
-# boot_ci_col_default <- "#E41A1C"
-# ols_ci_col_default <- "#377EB8"
-# bar_palette_default <- "Set2"
-# cat("1. Bootstrap histogram fill color [default:", hist_col_default, "]: ")
-# hist_col <- readline()
-# if (hist_col == "") hist_col <- hist_col_default
-# cat("2. OLS reference line color (histogram) [default:", ols_line_col_default, "]: ")
-# ols_line_col <- readline()
-# if (ols_line_col == "") ols_line_col <- ols_line_col_default
-# cat("3. Bootstrap CI line color (CI plot) [default:", boot_ci_col_default, "]: ")
-# boot_ci_col <- readline()
-# if (boot_ci_col == "") boot_ci_col <- boot_ci_col_default
-# cat("4. OLS CI line color (CI plot) [default:", ols_ci_col_default, "]: ")
-# ols_ci_col <- readline()
-# if (ols_ci_col == "") ols_ci_col <- ols_ci_col_default
-# cat("5. Bias²/Variance/MSE bar chart palette (brewer) [default:", bar_palette_default, "]: ")
-# bar_palette <- readline()
-# if (bar_palette == "") bar_palette <- bar_palette_default
-# cat("\nUsing color settings:\n")
-# cat(" Histogram fill :", hist_col, "\n")
-# cat(" OLS dashed line :", ols_line_col, "\n")
-# cat(" Bootstrap CI :", boot_ci_col, "\n")
-# cat(" OLS CI :", ols_ci_col, "\n")
-# cat(" Bar chart palette:", bar_palette, "\n\n")
-ols_slr <- ols_estimators(data, predictor, respond)
-boot_slr <- bootstrap_slr_summary(data = data, predictor = predictor, respond = respond, R = R, seed = seed)
-summary_table <- bootstrap_slr(boot_slr, ols_slr)
-while (!is.null(dev.list())) dev.off()
-plot_boot_hist(boot_slr, ols_slr, term = "intercept")
-plot_boot_hist(boot_slr, ols_slr, term = "slope")
-ci_list <- bootstrap_slr_ci(boot_slr, ols_slr, level = 0.95)
-plot_ci_box(ci_list, term = "intercept")
-plot_ci_box(ci_list, term = "slope")
-plot_lr_bootstrap_scatter(ols_slr, boot_slr)
-# cat("\nAll five plots have been drawn. Please check the Plots pane in RStudio.\n")
-

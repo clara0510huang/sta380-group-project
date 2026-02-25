@@ -20,34 +20,34 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup, include=FALSE}
+This example demonstrates how to perform ***bootstrap estimation for Simple Linear Regression (SLR)*** using the Boston Housing Dataset.
+
+We use the response variable `medv` and the predictor variable `lstat` with default values ​​as an example. We will generate a relational model and then use bootstrap resampling to estimate the sampling variability, bias, and confidence intervals of the intercept and slope.
+
+```{r setup}
 data <- read.csv("BostonHousing.csv")
 source("main.R")
 
-set.seed(123)
-
-# Choose variables for SLR
+# Example variables
 respond <- "medv"
 predictor <- "lstat"
 ```
 
-# Overview
+The analysis is implemented through the following functions:  
+- `ols_estimators(data, predictor, respond)`  
+- `bootstrap_slr_summary(data, R, seed, predictor, respond)`  
+- `bootstrap_slr(boot_slr, ols_slr)`  
+- `bootstrap_slr_ci(boot_slr, ols_slr, level)`  
+- `plot_boot_hist(boot_slr, ols_slr, term = c("intercept","slope"))`    
+- `plot_ci_box(ci_list, term = c("intercept","slope"))`  
+- `plot_lr_bootstrap_scatter(ci_list, term = c("intercept","slope"))`  
 
-This vignette demonstrates bootstrap estimation for a **simple linear regression (SLR)** using the Boston Housing dataset.
-We model the relationship between the response variable `medv` and the predictor `lstat`, and then use bootstrap resampling
-to estimate sampling variability, bias, and confidence intervals for the intercept and slope.
 
-Workflow:
-1) fit OLS SLR and obtain standard (Wald) confidence intervals  
-2) bootstrap the SLR coefficients and summarize bias/SE/variance/MSE  
-3) compare bootstrap percentile CIs to OLS CIs  
-4) check standard linear regression assumptions with diagnostic plots  
+## Data
 
-# Data
+The Boston Housing dataset contains housing and neighborhood variables for census tracts in the Boston area [@harrison1978hedonic].
 
-The Boston Housing dataset contains housing and neighborhood variables for census tracts in the Boston area (see [@harrison1978hedonic]).
-
-### Dataset shape and preview
+### Dataset preview
 
 ```{r}
 dim(data)
@@ -63,11 +63,7 @@ summary(data[, c(predictor, respond)])
 
 ### Visualizing IQR for Selected Variables
 
-Example with predictor = "lstat" and respond = "medv"
-
 ```{r iqr-boxplot-example, fig.width=8, fig.height=5, message=FALSE}
-# Assuming 'data' is already loaded and main.R is sourced
-
 iqr_result <- plot_iqr_boxplot(
   data      = data,
   predictor = "lstat",
@@ -106,29 +102,43 @@ cor_res <- calculate_correlation(data, predictor, respond)
 cor_res
 ```
 
-# Functions and Usage
+## Simple Linear Regression
 
-All group functions are sourced from `main.R`. Key functions used here include:
-
-- `ols_estimators(data, predictor, respond)`  
-- `bootstrap_slr_summary(data, R, seed, predictor, respond)`  
-- `bootstrap_slr(boot_slr, ols_slr)`  
-- `bootstrap_slr_ci(boot_slr, ols_slr, level)`  
-- `plot_boot_hist(boot_slr, ols_slr, term = c("intercept","slope"))`  
-- `plot_ci_box(ci_list, term = c("intercept","slope"))`
-
-## OLS estimation
+### OLS estimation
 
 ```{r}
 ols_slr <- ols_estimators(data, predictor = predictor, respond = respond)
 ols_slr
 ```
 
-### OLS fitted line on the scatterplot
+We use standard diagnostic plots to check:
+
+1) **Linearity**  
+2) **Independence**  
+3) **Homoscedasticity**  
+4) **Normality of residuals**  
 
 ```{r}
 lr_model <- lm(reformulate(predictor, respond), data = data)
+par(mfrow = c(2, 2))
+plot(lr_model)
+par(mfrow = c(1, 1))
+```
 
+### Residuals vs predictor (extra check)
+
+```{r}
+resid_vals <- resid(lr_model)
+plot(data[[predictor]], resid_vals,
+     xlab = predictor,
+     ylab = "Residuals",
+     main = "Residuals vs Predictor")
+abline(h = 0, lwd = 2, lty = 2)
+```
+
+### OLS fitted line on the scatterplot
+
+```{r}
 plot(data[[predictor]], data[[respond]],
      xlab = predictor,
      ylab = respond,
@@ -136,11 +146,11 @@ plot(data[[predictor]], data[[respond]],
 abline(lr_model, lwd = 2, lty = 2)
 ```
 
-# Bootstrap + Linear Regression Assumptions
+## Bootstrap for Simple Linear Regression
 
-## Bootstrap estimation
+### Bootstrap estimation
 
-We run bootstrap with `R = 1000` resamples (see [@davison1997bootstrap; @boot2025]).
+We run bootstrap with `R = 1000` resamples.
 
 ```{r}
 boot_slr <- bootstrap_slr_summary(
@@ -152,6 +162,9 @@ boot_slr <- bootstrap_slr_summary(
 )
 names(boot_slr)
 ```
+
+
+## Comparative Analysis between Two Models
 
 ### Bootstrap summary table (bias / variance / MSE)
 
@@ -186,38 +199,29 @@ plot_ci_box(ci_list, term = "intercept")
 ```{r}
 plot_ci_box(ci_list, term = "slope")
 ```
+### Bootstrap joint distribution: intercept vs slope
 
-## Linear regression assumptions (diagnostics)
+This figure visualizes the joint sampling distribution of the intercept and slope using the Bootstrap method with 1000 resamples.
+We can identify the following message:
 
-We use standard diagnostic plots to check:
+Parameter correlation: The tilt direction of the point cloud shows the trade-off between the intercept and slope.
 
-1) **Linearity**  
-2) **Independence**  
-3) **Homoscedasticity**  
-4) **Normality of residuals**  
+Bias magnitude: The arrow length reflects the degree of deviation between the Bootstrap mean and the OLS estimate.
 
-```{r}
-par(mfrow = c(2, 2))
-plot(lr_model)
-par(mfrow = c(1, 1))
+Model stability: The dispersion of the point cloud corresponds to the variance of the parameter estimates.
+
+Estimation reliability: Whether the orange rhombus falls within a high-density region indicates the representativeness of the original estimate.
+
+```{r bootstrap-joint-scatter, fig.width=8, fig.height=7}
+plot_lr_bootstrap_scatter(ols_slr, boot_slr)
 ```
 
-### Residuals vs predictor (extra check)
+## AI Statement
 
-```{r}
-resid_vals <- resid(lr_model)
-plot(data[[predictor]], resid_vals,
-     xlab = predictor,
-     ylab = "Residuals",
-     main = "Residuals vs Predictor")
-abline(h = 0, lwd = 2, lty = 2)
-```
+(Place your final AI statement here according to your course policy.)
 
-# Bibliography
+## Bibliography
 
 ::: {#refs}
 :::
 
-# AI Statement
-
-(Place your final AI statement here according to your course policy.)

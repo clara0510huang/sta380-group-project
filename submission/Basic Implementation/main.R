@@ -170,7 +170,8 @@ plot_boot_hist <- function(boot_slr, ols_slr,
                            main = NULL,
                            xlab = NULL,
                            col_hist = "lightblue",
-                           col_ols = "red",...) {
+                           col_ols = "red",
+                           ...) {
   
   # vaild argument
   term <- match.arg(term)

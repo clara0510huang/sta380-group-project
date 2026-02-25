@@ -8,7 +8,7 @@ library(testthat)
 
 # Assign the data from the csv file
 if (interactive()) {
-  data <- read_csv("submission/Basic Implementation/BostonHousing.csv")
+  data <- read.csv("BostonHousing.csv")
 }
 # Model setup
 #' Generate simple linear regression model

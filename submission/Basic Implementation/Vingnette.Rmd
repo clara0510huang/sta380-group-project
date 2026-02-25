@@ -9,15 +9,19 @@ bibliography: bibliography.bib
 nocite: "@*"
 ---
 
-```{r setup, include=FALSE}
+```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.width = 7,
-  fig.height = 6,
-  message = FALSE,
-  warning = FALSE
+  warning = FALSE,
+  message = FALSE
 )
+knitr::opts_chunk$set(fig.width=7, fig.height=6) 
+```
+
+```{r setup}
+data<-read.csv("BostonHousing.csv")
+source("main.R")
 ```
 
 # AI Statement

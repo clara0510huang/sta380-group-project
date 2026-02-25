@@ -90,20 +90,23 @@ bootstrap_slr_summary <- function(data, R = 1000,seed = NULL,
 #' @examples
 #' respond <- "medv"
 #' predictor <-"lstat"
+#' respond <- "lstat"
+#' predictor <-"medv"
 #' ols_slr <- ols_estimators(data,respond, predictor)
 #' boot_slr<-bootstrap_slr_summary(data, R = 1000,seed = NULL,predictor,respond)
+#' bootstrap_slr(boot_slr,ols_slr)
 #' @export
 bootstrap_slr <-function(boot_slr,ols_slr){
   ols_b0 <- ols_slr$beta0
   ols_b1 <- ols_slr$beta1
+  ols_coef<- c(intercept = ols_b0,slope = ols_b1)
   boot_b0 <- boot_slr$boot_b0_star
   boot_b1 <- boot_slr$boot_b1_star
   boot_mean <- c(intercept = mean(boot_b0), slope = mean(boot_b1))
   boot_se <- c(intercept = boot_slr$boot_b0_sd, slope = boot_slr$boot_b1_sd)
-  bias <- c(intercept = boot_slr$boot_b0_bias, slope = boot_slr$boot_b1_bias)
+  bias <- boot_mean - ols_coef
   variance <- boot_se^2
   mse <- variance + bias^2
-  ols_coef<-c(ols_b0, ols_b1)
   data.frame(
     term = c("intercept", "slope"),
     ols = unname(ols_coef),
@@ -429,3 +432,4 @@ ggplot(plot_data, aes(x = term, y = value, fill = component)) +
     plot.title = element_text(hjust = 0.5, face = "bold")
   )
 cat("\nAll five plots have been drawn. Please check the Plots pane in RStudio.\n")
+

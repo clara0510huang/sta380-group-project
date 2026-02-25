@@ -284,7 +284,9 @@ bootstrap_slr_ci <- function(boot_slr, ols_slr, level = 0.95) {
 #' plot_ci_box(ci_list, "intercept")
 plot_ci_box <- function(ci_list, term = c("intercept", "slope"), main = NULL,
                         col_boots = "lightblue",
-                        col_ols = "red") {
+                        col_ols = "red",
+                        decomp_data = NULL, 
+                        bar_palette = "Set2") {
   # Validate term argument
   term <- match.arg(term)
   
@@ -360,7 +362,33 @@ plot_ci_box <- function(ci_list, term = c("intercept", "slope"), main = NULL,
                    lwd = 3,
                    bty = "n",
                    cex = 0.9)
-  
+  if (!is.null(decomp_data)) {
+
+    plot_data <- data.frame(
+      term = rep(decomp_data$term, 3),
+      component = factor(rep(c("Bias²", "Variance", "MSE"), each = 2),
+                         levels = c("Bias²", "Variance", "MSE")),
+      value = c(decomp_data$bias^2, decomp_data$variance, decomp_data$mse)
+    )
+
+    p <- ggplot(plot_data, aes(x = term, y = value, fill = component)) +
+      geom_col(position = "dodge") +
+      scale_fill_brewer(palette = bar_palette) +
+      labs(
+        title = "Bias² - Variance - MSE Decomposition (Bootstrap)",
+        subtitle = sprintf("For %s", param_name),
+        y = "Value",
+        x = "Coefficient"
+      ) +
+      theme_minimal(base_size = 13) +
+      theme(
+        legend.position = "top",
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        plot.subtitle = element_text(hjust = 0.5)
+      )
+    
+    print(p)  
+  }
   # Return data invisibly
   invisible(dat)
 }
@@ -408,28 +436,16 @@ while (!is.null(dev.list())) dev.off()
 plot_boot_hist(boot_slr, ols_slr, term = "intercept", col_hist = hist_col, col_ols = ols_line_col)
 plot_boot_hist(boot_slr, ols_slr, term = "slope", col_hist = hist_col, col_ols = ols_line_col)
 ci_list <- bootstrap_slr_ci(boot_slr, ols_slr, level = 0.95)
-plot_ci_box(ci_list, term = "intercept", col_boots = boot_ci_col, col_ols = ols_ci_col)
-plot_ci_box(ci_list, term = "slope", col_boots = boot_ci_col, col_ols = ols_ci_col)
-df <- summary_table
-plot_data <- data.frame(
-  term = rep(df$term, 3),
-  component = factor(rep(c("Bias²", "Variance", "MSE"), each = 2),
-                     levels = c("Bias²", "Variance", "MSE")),
-  value = c(df$bias^2, df$variance, df$mse)
-)
-ggplot(plot_data, aes(x = term, y = value, fill = component)) +
-  geom_col(position = "dodge") +
-  scale_fill_brewer(palette = bar_palette) +
-  labs(
-    title = "Bias² - Variance - MSE Decomposition (Bootstrap)",
-    subtitle = sprintf("%s ~ %s (R = %d)", respond, predictor, R),
-    y = "Value",
-    x = "Coefficient"
-  ) +
-  theme_minimal(base_size = 14) +
-  theme(
-    legend.position = "top",
-    plot.title = element_text(hjust = 0.5, face = "bold")
-  )
+plot_ci_box(ci_list, term = "intercept", 
+            col_boots = boot_ci_col, 
+            col_ols = ols_ci_col,
+            decomp_data = summary_table,
+            bar_palette = bar_palette)
+
+plot_ci_box(ci_list, term = "slope", 
+            col_boots = boot_ci_col, 
+            col_ols = ols_ci_col,
+            decomp_data = summary_table,
+            bar_palette = bar_palette)
 cat("\nAll five plots have been drawn. Please check the Plots pane in RStudio.\n")
 

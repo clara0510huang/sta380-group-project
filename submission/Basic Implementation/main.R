@@ -153,121 +153,86 @@ calculate_correlation <- function(data, predictor, respond) {
 # Visualization
 
 #' Bootstrap Distribution Plot for Correlation Coefficient
-#'
-#' @description Performs bootstrap resampling to estimate the distribution of the 
-#' Pearson correlation coefficient between two variables. Plots the bootstrap 
-#' histogram and overlays the theoretical normal density based on the sample 
-#' correlation (for comparison, similar to Davison & Hinkley Figure on page 16).
-#'
-#' @param data A data.frame containing the variables
-#' @param predictor Character string: name of the predictor variable
-#' @param respond Character string: name of the response variable
-#' @param R Integer: number of bootstrap replicates (default: 1000)
-#' @param seed Integer or NULL: random seed for reproducibility
-#' @param breaks Histogram breaks (passed to hist(); default: "Sturges")
-#' @param col_hist Color of histogram bars (default: "lightblue")
-#' @param col_density Color of theoretical normal density line (default: "red")
-#' @param main Optional title (default: auto-generated)
-#' @param xlab Optional x-label (default: "Correlation Coefficient")
-#' @param ... Additional arguments passed to hist()
-#'
-#' @return A list containing:
-#'   \item{cor_boot}{vector of bootstrap correlation coefficients}
-#'   \item{cor_obs}{observed sample correlation}
-#'   \item{plot}{the base graphics plot object (invisible)}
-#'
-#' @importFrom stats cor cor.test dnorm
+#' @description Performs bootstrap resampling to estimate the distribution of the correlation coefficient.
+#' @param data A data.frame containing the variables.
+#' @param predictor A string contains selecting variable name.
+#' @param respond A string contains selecting variable name.
+#' @param R Number of bootstrap samples (set as 1000).
+#' @param seed Input seed for reproducibility.
+#' @param breaks Histogram breaks passed to hist(). Default "Sturges".
+#' @param col_hist Color of histogram bars. Set "lightblue" as default.
+#' @param col_density Color of theoretical density line. Set "red" as default.
+#' @param main Optional title.
+#' @param xlab Optional x-axis label.
+#' @param ... Additional args passed to hist().
+#' @return A histogram object for correlation coefficient.
+#' @examples
+#' respond <- "medv"
+#' predictor <- "lstat"
+#' plot_bootstrap_correlation(data, predictor, respond)
+#' @importFrom stats cor dnorm complete.cases
 #' @importFrom boot boot
 #' @export
-plot_bootstrap_correlation <- function(data,
-                                       predictor,
-                                       respond,
-                                       R = 1000,
-                                       seed = NULL,
-                                       breaks = "Sturges",
-                                       col_hist = "lightblue",
-                                       col_density = "red",
-                                       main = NULL,
-                                       xlab = "Correlation Coefficient",
-                                       ...) {
-  
-  # Input checks
-  if (!predictor %in% names(data)) {
-    stop("Predictor variable not found in dataset: ", predictor)
-  }
-  if (!respond %in% names(data)) {
-    stop("Response variable not found in dataset: ", respond)
+plot_bootstrap_correlation <- function(data, predictor, respond, R = 1000, seed = NULL,
+                                       breaks = "Sturges", col_hist = "lightblue",
+                                       col_density = "red", main = NULL, xlab = NULL, ...) {
+  if (!is.null(seed)) {
+    set.seed(seed)
   }
   
-  # Extract variables
   x <- data[[predictor]]
   y <- data[[respond]]
   
   # Observed correlation
   cor_obs <- cor(x, y, use = "complete.obs")
   
-  # Bootstrap statistic function: compute correlation using column positions
-  boot_cor <- function(data, indices) {
-    d <- data[indices, ]
-    cor(d[, 1], d[, 2], use = "complete.obs")  # column 1 = x, column 2 = y
-  }
-  
   # Run bootstrap
-  if (!is.null(seed)) set.seed(seed)
-  
-  # Wrap variables into a data.frame with fixed column names
   boot_data <- data.frame(x = x, y = y)
+  boot_model <- boot(data = boot_data,
+                     statistic = function(data, indices) {
+                       d <- data[indices, ]
+                       return(cor(d[, 1], d[, 2], use = "complete.obs"))
+                     },
+                     R = R)
   
-  boot_obj <- boot(data = boot_data,
-                   statistic = boot_cor,
-                   R = R)
+  vals <- boot_model$t[, 1]
   
-  boot_cor_values <- boot_obj$t[, 1]
-  
-  # Set default title
   if (is.null(main)) {
-    main <- sprintf("Bootstrap Distribution of Correlation (%s vs %s)\nObserved r = %.3f (R = %d)",
-                    predictor, respond, cor_obs, R)
+    main <- paste0("Bootstrap Distribution of Correlation\n(Observed r = ", round(cor_obs, 3), ")")
   }
   
-  # Plot histogram of bootstrap correlations
-  h <- hist(boot_cor_values,
-            breaks = breaks,
-            probability = TRUE,
-            col = col_hist,
-            border = "white",
-            main = main,
-            xlab = xlab,
-            ylab = "Probability Density",
-            ...)
+  if (is.null(xlab)) {
+    xlab <- "Correlation Coefficient"
+  }
   
-  # Overlay theoretical normal density (Fisher approximation)
-  # variance of r ≈ (1 - r²)² / (n - 3)
+  h <- graphics::hist(vals,
+                      breaks = breaks,
+                      probability = TRUE,
+                      main = main,
+                      xlab = xlab,
+                      col = col_hist,
+                      border = "white",
+                      ylim = c(0, 32),
+                      ...)
+  
   n <- sum(complete.cases(x, y))
-  if (n < 4) stop("Too few complete cases for Fisher variance approximation (n < 4)")
-  
   var_r <- (1 - cor_obs^2)^2 / (n - 3)
-  curve(dnorm(x, mean = cor_obs, sd = sqrt(var_r)),
-        col = col_density,
-        lwd = 2,
-        add = TRUE)
   
-  # Add legend
-  legend("topright",
-         legend = c("Bootstrap Histogram", "Theoretical Normal"),
-         fill = c(col_hist, NA),
-         col = c(NA, col_density),
-         lty = c(NA, 1),
-         lwd = c(NA, 2),
-         bty = "n",
-         cex = 0.9)
+  graphics::curve(dnorm(x, mean = cor_obs, sd = sqrt(var_r)),
+                  col = col_density,
+                  lwd = 2,
+                  add = TRUE)
   
-  # Return results invisibly
-  invisible(list(
-    cor_boot = boot_cor_values,
-    cor_obs  = cor_obs,
-    plot     = h
-  ))
+  graphics::legend("topright",
+                   legend = c("Bootstrap", "Theoretical Normal"),
+                   col = c(col_hist, col_density),
+                   pch = c(15, NA),
+                   lty = c(NA, 1),
+                   lwd = 2,
+                   bty = "n",
+                   cex = 0.9)
+  
+  return(invisible(h))
 }
 
 #' Plot bootstrap histogram with OLS reference line
@@ -608,83 +573,51 @@ plot_lr_bootstrap_scatter <- function(ols_slr,
   
   return(p)
 }
-#' Calculate IQR and Generate Boxplot for Selected Variables
-#'
-#' @description Computes the Interquartile Range (IQR = Q3 - Q1) for the user-selected
-#' predictor and response variables from the Boston Housing dataset.
-#' Generates a side-by-side boxplot to visualize the IQR, median, and outliers.
-#'
-#' @param data A data.frame containing the Boston Housing data
-#' @param predictor Character string: name of the predictor variable (e.g., "lstat")
-#' @param respond Character string: name of the response variable (e.g., "medv")
-#' @param col_predictor Fill color for the predictor boxplot (default: "lightblue")
-#' @param col_respond Fill color for the response boxplot (default: "lightgreen")
-#' @param main_title Optional title for the plot (default: auto-generated with variable names)
-#' @param save_plot Logical: whether to save the plot as a PNG file (default: FALSE)
-#' @param filename Character string: name of the saved file if save_plot = TRUE
-#' @param width Numeric: plot width in inches when saving (default: 8)
-#' @param height Numeric: plot height in inches when saving (default: 5)
-#'
-#' @return A list containing:
-#'   \item{iqr_predictor}{IQR of the predictor variable}
-#'   \item{iqr_respond}{IQR of the response variable}
-#'   \item{plot}{The ggplot object (can be printed or saved)}
-#'
-#' @importFrom ggplot2 ggplot aes geom_boxplot labs theme_minimal annotate scale_fill_manual
-#' @importFrom stats IQR median
+#' Generate boxplot and calculate IQR for selected variables
+#' @param data A data.frame containing the variables.
+#' @param predictor A string contains selecting variable name.
+#' @param respond A string contains selecting variable name.
+#' @param col_box Colors of the boxplots. Default c("lightblue", "lightgreen").
+#' @param main Optional title. If NULL, generates automatic title.
+#' @param ylab Optional y-axis label.
+#' @param ... Additional args passed to boxplot()
+#' @return Invisibly returns the boxplot object.
+#' @examples
+#' respond <- "medv"
+#' predictor <- "lstat"
+#' plot_iqr_boxplot(data, predictor, respond)
 #' @export
-plot_iqr_boxplot <- function(data,
-                             predictor,
+plot_iqr_boxplot <- function(data, 
+                             predictor, 
                              respond,
-                             col_predictor = "lightblue",
-                             col_respond   = "lightgreen",
-                             main_title    = NULL,
-                             save_plot     = FALSE,
-                             filename      = "iqr_boxplot.png",
-                             width         = 8,
-                             height        = 5) {
+                             col_box = c("lightblue", "lightgreen"),
+                             main = NULL,
+                             ylab = "Value",
+                             ...) {
   
-  # Input validation
-  if (!predictor %in% names(data)) stop("Predictor not found: ", predictor)
-  if (!respond   %in% names(data)) stop("Response not found: ", respond)
+  # Validate input variables
+  if (!predictor %in% names(data)) stop("Predictor not found in data")
+  if (!respond %in% names(data)) stop("Response not found in data")
   
-  # Calculate IQR
-  iqr_p <- IQR(data[[predictor]], na.rm = TRUE)
-  iqr_r <- IQR(data[[respond]],   na.rm = TRUE)
+  # Calculate IQR for both variables
+  iqr_p <- stats::IQR(data[[predictor]], na.rm = TRUE)
+  iqr_r <- stats::IQR(data[[respond]], na.rm = TRUE)
   
-  # Long format data
-  df_long <- data.frame(
-    Variable = factor(c(rep("Predictor", nrow(data)), rep("Response", nrow(data))),
-                      levels = c("Predictor", "Response")),
-    Value    = c(data[[predictor]], data[[respond]])
-  )
-  
-  # Default title
-  if (is.null(main_title)) {
-    main_title <- "IQR: Predictor vs Response"
+  # Set dynamic title with IQR values included
+  if (is.null(main)) {
+    main <- paste0("Boxplot of ", predictor, " vs ", respond,
+                   "\n(IQR: ", predictor, " = ", round(iqr_p, 2), 
+                   ", ", respond, " = ", round(iqr_r, 2), ")")
   }
   
-  # ggplot boxplot
-  p <- ggplot(df_long, aes(x = Variable, y = Value, fill = Variable)) +
-    geom_boxplot(outlier.colour = "red", outlier.shape = 16, outlier.size = 2.5, alpha = 0.8) +
-    scale_fill_manual(values = c("Predictor" = col_predictor, "Response" = col_respond)) +
-    labs(title    = main_title,
-         subtitle = sprintf("IQR (Predictor) = %.2f | IQR (Response) = %.2f", iqr_p, iqr_r),
-         x = NULL, y = "Value") +
-    theme_minimal(base_size = 14) +
-    theme(legend.position = "none",
-          plot.title      = element_text(face = "bold", hjust = 0.5),
-          plot.subtitle   = element_text(hjust = 0.5, color = "gray50")) +
-    annotate("text", x = 1, y = median(data[[predictor]]) + 1.2 * iqr_p,
-             label = sprintf("%.2f", iqr_p), color = "darkblue", size = 5) +
-    annotate("text", x = 2, y = median(data[[respond]]) + 1.2 * iqr_r,
-             label = sprintf("%.2f", iqr_r), color = "darkgreen", size = 5)
+  # Generate side-by-side boxplot using base graphics
+  b <- graphics::boxplot(data[[predictor]], data[[respond]],
+                         names = c("Predictor", "Response"),
+                         col = col_box,
+                         main = main,
+                         ylab = ylab,
+                         ...)
   
-  if (save_plot) {
-    ggsave(filename, plot = p, width = width, height = height, dpi = 300)
-    message("IQR boxplot saved: ", filename)
-  }
-  
-  invisible(list(iqr_predictor = iqr_p, iqr_respond = iqr_r, plot = p))
-  return(p)
+  # Invisibly return the plot object
+  invisible(b)
 }

@@ -210,6 +210,8 @@ In the Vingette.rmd, the Generative AI (ChatGPT) was used to address the data re
 
 In the main.R,  AI provide suggestions on how to visualize the comparison of Bootstrap estimation and OLS estimation. The final decision of using the bivariate graph of the joint sample distribution comes from the knowledge in MAT332 and other STA courses.
 
+AI also gave me suggestions on plotting the IQR and Bootstrap distribution plots for the correlation coefficient, and it provided a clear template approach along with some ideas for writing the code. Those helped me a lot to write my own code.
+
 All final choices, variable selections, implementations, interpretations, and visualizations were reviewed and edited by the authors.
 
 ## Bibliography

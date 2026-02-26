@@ -212,7 +212,7 @@ In the main.R,  AI provide suggestions on how to visualize the comparison of Boo
 
 When debugging the test_bootstrap_boston, prompted to AI with "Why does the R=100 causing error", the ChatGPT indicates that actually, setting R = 100 itself didn't trigger the red fatal error. The red crosses we saw on lines 124 and 128 during tests were definitely due to the insetting of the variable R. This helped with locating the error in "main.R", which setted R = 1000 inside the function, causing R = 100 in the test giving error.
 
-AI also gave me suggestions on plotting the IQR and Bootstrap distribution plots for the correlation coefficient, and it provided a clear template approach along with some ideas for writing the code. Those helped me a lot to write my own code.
+AI also gave  suggestions on plotting the IQR and Bootstrap distribution plots for the correlation coefficient, and it provided a clear template approach along with some ideas for writing the code. Those helped a lot with writing our code.
 
 All final choices, variable selections, implementations, interpretations, and visualizations were reviewed and edited by the authors.
 

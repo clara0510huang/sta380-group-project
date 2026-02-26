@@ -187,7 +187,7 @@ plot_ci_box(ci_list, term = "intercept")
 plot_ci_box(ci_list, term = "slope")
 ```
 
-### Bootstrap joint distribution: intercept vs slope
+### Comparison of Bootstrap estimation and OLS estimation
 
 This figure visualizes the joint sampling distribution of the intercept and slope using the Bootstrap method with 1000 resamples.
 We can identify the following message:

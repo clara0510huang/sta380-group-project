@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 
 This example demonstrates how to perform ***bootstrap estimation for Simple Linear Regression (SLR)*** using the Boston Housing Dataset.
 
-We use the response variable `medv` and the predictor variable `lstat` with default values ​​as an example. We will generate a relational model and then use bootstrap resampling to estimate the sampling variability, bias, and confidence intervals of the intercept and slope.
+We use the response variable `medv` and the predictor variable `lstat` as an example. We will generate a linear regression model first and then use bootstrap resampling to estimate the sampling variability, bias, and confidence intervals of the intercept and slope.
 
 ```{r setup}
 data <- read.csv("BostonHousing.csv")
@@ -60,17 +60,11 @@ head(data, 5)
 ```{r}
 summary(data[, c(predictor, respond)])
 ```
+
 ### IQR Visualization: Predictor vs Response
 
-```{r iqr-summary, fig.width=8, fig.height=5}
+```{r}
 plot_iqr_boxplot(data, predictor, respond)
-```
-
-### Bootstrap Correlation Distribution: Predictor vs Response
-
-```{r corr-bootstrap, fig.width=7, fig.height=6}
-plot_bootstrap_correlation(data, predictor, respond)
-
 ```
 
 ### Scatterplot of response vs predictor
@@ -150,6 +144,12 @@ boot_slr <- bootstrap_slr_summary(
 names(boot_slr)
 ```
 
+### Bootstrap Correlation Distribution: Predictor vs Response
+
+```{r}
+plot_bootstrap_correlation(data, predictor, respond)
+
+```
 
 ## Comparative Analysis between Two Models
 
@@ -186,6 +186,7 @@ plot_ci_box(ci_list, term = "intercept")
 ```{r}
 plot_ci_box(ci_list, term = "slope")
 ```
+
 ### Bootstrap joint distribution: intercept vs slope
 
 This figure visualizes the joint sampling distribution of the intercept and slope using the Bootstrap method with 1000 resamples.
@@ -199,7 +200,7 @@ Model stability: The dispersion of the point cloud corresponds to the variance o
 
 Estimation reliability: Whether the orange rhombus falls within a high-density region indicates the representativeness of the original estimate.
 
-```{r bootstrap-joint-scatter, fig.width=8, fig.height=7}
+```{r}
 plot_lr_bootstrap_scatter(ols_slr, boot_slr)
 ```
 

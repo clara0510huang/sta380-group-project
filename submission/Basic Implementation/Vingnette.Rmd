@@ -206,7 +206,11 @@ plot_lr_bootstrap_scatter(ols_slr, boot_slr)
 
 ## AI Statement
 
-(Place your final AI statement here according to your course policy.)
+In the Vingette.rmd, the Generative AI (ChatGPT) was used to address the data reading issue.   
+
+In the main.R,  AI provide suggestions on how to visualize the comparison of Bootstrap estimation and OLS estimation. The final decision of using the bivariate graph of the joint sample distribution comes from the knowledge in MAT332 and other STA courses.
+
+All final choices, variable selections, implementations, interpretations, and visualizations were reviewed and edited by the authors.
 
 ## Bibliography
 

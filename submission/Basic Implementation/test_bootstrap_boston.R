@@ -121,14 +121,12 @@ test_that("plot_boot_hist runs without errors", {
   boot_result <- bootstrap_slr_summary(test_data, predictor = "LSTAT", respond = "MEDV", R = 100, seed = 123)
   
   # Test that plot function runs without errors
-  expect_error(
-    plot_boot_hist(boot_result, ols_result, term = "intercept"), 
-    NA
+  expect_no_error(
+    plot_boot_hist(boot_result, ols_result, term = "intercept")
   )
-  expect_error(
+  expect_no_error(
     plot_boot_hist(boot_result, ols_result, term = "slope", 
-                   breaks = 20, main = "Custom Title"), 
-    NA
+                   breaks = 20, main = "Custom Title")
   )
 })
 
@@ -138,13 +136,11 @@ test_that("plot_ci_box runs without errors", {
   ci_list <- bootstrap_slr_ci(boot_result, ols_result)
   
   # Test plot functions
-  expect_error(
-    plot_ci_box(ci_list, term = "intercept"),
-    NA
+  expect_no_error(
+    plot_ci_box(ci_list, term = "intercept")
   )
-  expect_error(
-    plot_ci_box(ci_list, term = "slope", main = "Slope CI Comparison"),
-    NA
+  expect_no_error(
+    plot_ci_box(ci_list, term = "slope", main = "Slope CI Comparison")
   )
 })
 

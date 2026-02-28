@@ -63,22 +63,48 @@ bootstrap_slr_summary <- function(data, R = 1000,seed = NULL,
   if (!is.null(seed)) {
     set.seed(seed)
   }
-  boot_model <- boot(data = data,
-                     statistic = function(data, indices) {
-                       d <- data[indices, ]
-                       model <- lm(reformulate(predictor, respond), data = d)
-                       return(coef(model))
-                     },
-                     R = R)
+  
+  fit0 <- lm(reformulate(predictor, respond), data = data)
+  theta_hat <- unname(coef(fit0))
+  
+  # Given a matrix assign beta0 to the first column 
+  # and beta1 to the second column.
+  t.mat <- matrix(NA_real_, nrow = R, ncol = 2)
+  colnames(t.mat) <- c("beta0", "beta1")
+  
+  for(b in seq_len(R)){
+    idx <- sample(seq_len(n), size = n, replace = TRUE)
+    d_b = data[idx, , drop = FALSE]
+    fit_b <- lm(reformulate(predictor, respond), data = d_b)
+    # coef hat into matrix
+    t.mat[b, ] <- unname(coef(fit_b))
+  }
+  
+  # get the 1st and 2nd column
+  b0_star <- t.mat[, 1]
+  b1_star <- t.mat[, 2]
+  
+  #standard deviation
+  b0_sd <- sd(b0_star)
+  b1_sd <- sd(b1_star)
+  
+  # calculate bias
+  b0_bias <- mean(b0_star) - theta_hat[1]
+  b1_bias <- mean(b1_star) - theta_hat[2]
+  
+  # calculate percentile
+  b0_per <- quantile(b0_star, probs = c(0.025, 0.975), names = FALSE)
+  b1_per <- quantile(b1_star, probs = c(0.025, 0.975), names = FALSE)
+  
   boot_slr <- list(
-    boot_b0_star = boot_model$t[,1],
-    boot_b1_star = boot_model$t[,2],
-    boot_b0_sd = sd(boot_model$t[,1]),
-    boot_b1_sd = sd(boot_model$t[,2]),
-    boot_b0_bias = boot_model$bias[1],
-    boot_b1_bias = boot_model$bias[2],
-    boot_b0_ci = boot.ci(boot_model, index = 1, type = "perc"),
-    boot_b1_ci = boot.ci(boot_model, index = 2, type = "perc")
+    boot_b0_star = b0_star,
+    boot_b1_star = b1_star,
+    boot_b0_sd = b0_sd,
+    boot_b1_sd = b1_sd,
+    boot_b0_bias = b0_bias,
+    boot_b1_bias = b1_bias,
+    boot_b0_ci = list(percent = c(NA, NA, NA, b0_perc[1], b0_perc[2])),
+    boot_b1_ci = list(percent = c(NA, NA, NA, b1_perc[1], b1_perc[2]))
   )
   return(boot_slr)
 }

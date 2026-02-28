@@ -63,22 +63,48 @@ bootstrap_slr_summary <- function(data, R = 1000,seed = NULL,
   if (!is.null(seed)) {
     set.seed(seed)
   }
-  boot_model <- boot(data = data,
-                     statistic = function(data, indices) {
-                       d <- data[indices, ]
-                       model <- lm(reformulate(predictor, respond), data = d)
-                       return(coef(model))
-                     },
-                     R = R)
+  
+  fit0 <- lm(reformulate(predictor, respond), data = data)
+  theta_hat <- unname(coef(fit0))
+  
+  # Given a matrix assign beta0 to the first column 
+  # and beta1 to the second column.
+  t.mat <- matrix(NA_real_, nrow = R, ncol = 2)
+  colnames(t.mat) <- c("beta0", "beta1")
+  
+  for(b in seq_len(R)){
+    idx <- sample(seq_len(n), size = n, replace = TRUE)
+    d_b = data[idx, , drop = FALSE]
+    fit_b <- lm(reformulate(predictor, respond), data = d_b)
+    # coef hat into matrix
+    t.mat[b, ] <- unname(coef(fit_b))
+  }
+  
+  # get the 1st and 2nd column
+  b0_star <- t.mat[, 1]
+  b1_star <- t.mat[, 2]
+  
+  #standard deviation
+  b0_sd <- sd(b0_star)
+  b1_sd <- sd(b1_star)
+  
+  # calculate bias
+  b0_bias <- mean(b0_star) - theta_hat[1]
+  b1_bias <- mean(b1_star) - theta_hat[2]
+  
+  # calculate percentile
+  b0_per <- quantile(b0_star, probs = c(0.025, 0.975), names = FALSE)
+  b1_per <- quantile(b1_star, probs = c(0.025, 0.975), names = FALSE)
+  
   boot_slr <- list(
-    boot_b0_star = boot_model$t[,1],
-    boot_b1_star = boot_model$t[,2],
-    boot_b0_sd = sd(boot_model$t[,1]),
-    boot_b1_sd = sd(boot_model$t[,2]),
-    boot_b0_bias = boot_model$bias[1],
-    boot_b1_bias = boot_model$bias[2],
-    boot_b0_ci = boot.ci(boot_model, index = 1, type = "perc"),
-    boot_b1_ci = boot.ci(boot_model, index = 2, type = "perc")
+    boot_b0_star = b0_star,
+    boot_b1_star = b1_star,
+    boot_b0_sd = b0_sd,
+    boot_b1_sd = b1_sd,
+    boot_b0_bias = b0_bias,
+    boot_b1_bias = b1_bias,
+    boot_b0_ci = list(percent = c(NA, NA, NA, b0_perc[1], b0_perc[2])),
+    boot_b1_ci = list(percent = c(NA, NA, NA, b1_perc[1], b1_perc[2]))
   )
   return(boot_slr)
 }
@@ -205,7 +231,7 @@ plot_bootstrap_correlation <- function(data, predictor, respond, R = 1000, seed 
     xlab <- "Correlation Coefficient"
   }
   
-  h <- hist(vals,
+  h <- graphics::hist(vals,
                       breaks = breaks,
                       probability = TRUE,
                       main = main,
@@ -218,12 +244,12 @@ plot_bootstrap_correlation <- function(data, predictor, respond, R = 1000, seed 
   n <- sum(complete.cases(x, y))
   var_r <- (1 - cor_obs^2)^2 / (n - 3)
   
-  curve(dnorm(x, mean = cor_obs, sd = sqrt(var_r)),
+  graphics::curve(dnorm(x, mean = cor_obs, sd = sqrt(var_r)),
                   col = col_density,
                   lwd = 2,
                   add = TRUE)
   
-  legend("topright",
+  graphics::legend("topright",
                    legend = c("Bootstrap", "Theoretical Normal"),
                    col = c(col_hist, col_density),
                    pch = c(15, NA),
@@ -302,7 +328,7 @@ plot_boot_hist <- function(boot_slr, ols_slr,
     xlab <- paste0(param_name, " Estimate")
   }
   
-  h <- hist(vals,
+  h <- graphics::hist(vals,
                       breaks = breaks,
                       main = main,
                       xlab = xlab,
@@ -310,12 +336,12 @@ plot_boot_hist <- function(boot_slr, ols_slr,
                       border = "white",
                       ...)
   
-  abline(v = ols_val,
+  graphics::abline(v = ols_val,
                    col = col_ols,
                    lwd = 2,
                    lty = 2)
   
-  legend("topright",
+  graphics::legend("topright",
                    legend = paste0("OLS = ", round(ols_val, 4)),
                    col = col_ols,
                    lwd = 2,
@@ -410,7 +436,7 @@ plot_ci_box <- function(ci_list, term = c("intercept", "slope"), main = NULL,
   y_range <- c(y_range[1] - y_padding, y_range[2] + y_padding)
   
   # Create empty plot
-  plot(NA,
+  graphics::plot(NA,
                  xlim = c(0.5, 2.5),
                  ylim = y_range,
                  xaxt = "n",
@@ -420,34 +446,34 @@ plot_ci_box <- function(ci_list, term = c("intercept", "slope"), main = NULL,
                  cex.main = 1.2)
   
   # Add x-axis labels
-  axis(1, at = 1:2, labels = dat$method, cex.axis = 0.9)
+  graphics::axis(1, at = 1:2, labels = dat$method, cex.axis = 0.9)
   
   # Add light grid for better readability
-  grid(nx = NA, ny = NULL, lty = 3, col = "lightgray")
+  graphics::grid(nx = NA, ny = NULL, lty = 3, col = "lightgray")
   
   # Draw confidence intervals
   for (i in 1:2) {
     # Main vertical line (the interval)
-    segments(i, dat$lower[i], i, dat$upper[i],
+    graphics::segments(i, dat$lower[i], i, dat$upper[i],
                        lwd = 3, col = c(col_boots, col_ols)[i])
     
     # Lower horizontal cap
-    segments(i - 0.08, dat$lower[i], i + 0.08, dat$lower[i],
+    graphics::segments(i - 0.08, dat$lower[i], i + 0.08, dat$lower[i],
                        lwd = 3, col = c(col_boots, col_ols)[i])
     
     # Upper horizontal cap
-    segments(i - 0.08, dat$upper[i], i + 0.08, dat$upper[i],
+    graphics::segments(i - 0.08, dat$upper[i], i + 0.08, dat$upper[i],
                        lwd = 3, col = c(col_boots, col_ols)[i])
     
     # Add numeric label at the midpoint (optional)
     mid_point <- (dat$lower[i] + dat$upper[i]) / 2
-    text(i, mid_point,
+    graphics::text(i, mid_point,
                    sprintf("[%.3f, %.3f]", dat$lower[i], dat$upper[i]),
                    pos = 4, cex = 0.8, offset = 0.5)
   }
   
   # Add legend
-  legend("topright",
+  graphics::legend("topright",
                    legend = c("Bootstrap", "OLS"),
                    col = c(col_boots, col_ols),
                    lwd = 3,
@@ -600,8 +626,8 @@ plot_iqr_boxplot <- function(data,
   if (!respond %in% names(data)) stop("Response not found in data")
   
   # Calculate IQR for both variables
-  iqr_p <- IQR(data[[predictor]], na.rm = TRUE)
-  iqr_r <- IQR(data[[respond]], na.rm = TRUE)
+  iqr_p <- stats::IQR(data[[predictor]], na.rm = TRUE)
+  iqr_r <- stats::IQR(data[[respond]], na.rm = TRUE)
   
   # Set dynamic title with IQR values included
   if (is.null(main)) {
@@ -611,7 +637,7 @@ plot_iqr_boxplot <- function(data,
   }
   
   # Generate side-by-side boxplot using base graphics
-  b <- boxplot(data[[predictor]], data[[respond]],
+  b <- graphics::boxplot(data[[predictor]], data[[respond]],
                          names = c("Predictor", "Response"),
                          col = col_box,
                          main = main,

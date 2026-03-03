@@ -655,3 +655,111 @@ plot_iqr_boxplot <- function(data,
   # Invisibly return the plot object
   invisible(b)
 }
+
+#' Single simple linear regression with bootstrap
+#'
+#' @param data data frame with Boston Housing data
+#' @param respond response variable name (y). Cannot be "chas", "rad" or "b"
+#' @param predictor predictor variable name (x)
+#' @param R number of bootstrap replications
+#' @param seed random seed for reproducibility
+#' @param verbose print progress messages
+#' @return single_slr_result list
+#' @examples
+#' run_single_slr(data, "medv", "lstat")
+#' run_single_slr(data, respond = "rm", predictor = "ptratio", R = 2000)
+#' @export
+run_single_slr <- function(data,
+                           respond   = "medv",
+                           predictor = "lstat",
+                           R         = 1000,
+                           seed      = 2025,
+                           verbose   = TRUE) {
+  
+  forbidden <- c("chas", "rad", "b")
+  
+  if (respond %in% forbidden) {
+    stop("'", respond, "' cannot be response (forbidden: categorical/binary or ethical issues)")
+  }
+  if (!respond %in% names(data))    stop("Response '", respond, "' not found")
+  if (!predictor %in% names(data))  stop("Predictor '", predictor, "' not found")
+  if (respond == predictor)         stop("Response and predictor cannot be the same")
+  
+  if (verbose) cat("Analyzing:", respond, "~", predictor, "\n")
+  
+  ols <- tryCatch(ols_estimators(data, predictor, respond), error = function(e) {
+    if (verbose) message("OLS failed: ", e$message); NULL })
+  if (is.null(ols)) return(invisible(NULL))
+  
+  boot_res <- tryCatch(bootstrap_slr_summary(data, R = R, seed = seed, predictor, respond), error = function(e) {
+    if (verbose) message("Bootstrap failed: ", e$message); NULL })
+  if (is.null(boot_res)) return(invisible(NULL))
+  
+  tbl <- bootstrap_slr(boot_res, ols)
+  cor_res <- try(calculate_correlation(data, predictor, respond), silent = TRUE)
+  
+  structure(list(respond = respond, predictor = predictor, ols = ols,
+                 bootstrap = boot_res, summary_table = tbl, correlation = cor_res),
+            class = "single_slr_result")
+}
+
+
+#' Interactive Single SLR + Bootstrap
+#'
+#' Interactively select variables and run analysis.
+#'
+#' @param data Boston Housing data frame
+#' @param R Bootstrap replications, set default as 1000
+#' @param seed Random seed, set default as 2025
+#' @param verbose Show messages
+#' @return Same as run_single_slr()
+#' @examples
+#' interactive_single_slr(data)
+#' @export
+interactive_single_slr <- function(data,
+                                   R      = 1000,
+                                   seed   = 2025,
+                                   verbose = TRUE) {
+  
+  forbidden <- c("chas", "rad", "b")
+  all_vars <- sort(names(data))
+  allowed_y <- setdiff(all_vars, forbidden)
+  
+  if (length(allowed_y) == 0) stop("No valid response variables available")
+  
+  cat("\nAvailable variables:", paste(all_vars, collapse = " "), "\n")
+  cat("Excluded as response (y):", paste(forbidden, collapse = ", "), "\n\n")
+  
+  cat("Select response (y):\n")
+  respond <- select.list(allowed_y, title = "Response (y)", multiple = FALSE)
+  if (respond == "") stop("No response selected")
+  
+  remaining <- setdiff(all_vars, respond)
+  
+  cat("\nSelect predictor (x):\n")
+  predictor <- select.list(remaining, title = "Predictor (x)", multiple = FALSE)
+  if (predictor == "") stop("No predictor selected")
+  
+  cat("\nModel:", respond, "~", predictor, "\n")
+  if (menu(c("Run", "Choose again")) != 1) {
+    return(interactive_single_slr(data, R, seed, verbose))
+  }
+  
+  cat("\nRunning...\n\n")
+  run_single_slr(data, respond, predictor, R, seed, verbose)
+}
+
+
+# Print method
+print.single_slr_result <- function(x, ...) {
+  cat("SLR + Bootstrap\nModel:", x$respond, "~", x$predictor, "\n\n")
+  
+  if (!is.null(x$correlation) && !inherits(x$correlation, "try-error")) {
+    cat("Correlation: r =", round(x$correlation$correlation, 4),
+        " (p =", format.pval(x$correlation$p_value, digits = 4), ")\n\n")
+  }
+  
+  cat("Summary:\n")
+  print(x$summary_table, row.names = FALSE)
+  invisible(x)
+}

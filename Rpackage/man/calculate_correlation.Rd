@@ -9,9 +9,9 @@ calculate_correlation(data, predictor, respond)
 \arguments{
 \item{data}{A data frame containing the variables}
 
-\item{predictor}{A string contains selecting variable name.}
+\item{predictor}{A string that contains the name of the predictor variable.}
 
-\item{respond}{A string contains selecting variable name.}
+\item{respond}{A string that contains the name of the response variable.}
 }
 \value{
 Returns a list containing the followings:

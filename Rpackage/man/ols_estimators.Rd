@@ -7,6 +7,8 @@
 ols_estimators(data, predictor, respond)
 }
 \arguments{
+\item{data}{Boston Housing dataset.}
+
 \item{predictor}{A string contains selecting variable name.}
 
 \item{respond}{A string contains selecting variable name.}
@@ -20,6 +22,7 @@ Help to calculate the OLS estimators generate by using
 Boston Housing dataset.
 }
 \examples{
+data <- BostonHousing
 respond <- "medv"
 predictor <- "lstat"
 ols_slr <- ols_estimators(data, predictor, respond)

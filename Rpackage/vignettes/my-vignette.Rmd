@@ -10,19 +10,23 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5,
+  out.width = "90%"
 )
 ```
 
 ```{r setup}
 library(Rpackage)
+data <- BostonHousing
 ```
 
 This example demonstrates how to perform ***bootstrap estimation for Simple Linear Regression (SLR)*** using the Boston Housing Dataset.
 
 We use the response variable `medv` and the predictor variable `lstat` as an example. We will generate a linear regression model first and then use bootstrap resampling to estimate the sampling variability, bias, and confidence intervals of the intercept and slope.
 
-```{r setup}
+```{r}
 # Example variables
 respond <- "medv"
 predictor <- "lstat"
@@ -94,7 +98,7 @@ We use standard diagnostic plots to check:
 3) **Homoscedasticity**  
 4) **Normality of residuals**  
 
-```{r}
+```{r, fig.width = 7, fig.height = 7}
 lr_model <- lm(reformulate(predictor, respond), data = data)
 par(mfrow = c(2, 2))
 plot(lr_model)

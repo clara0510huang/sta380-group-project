@@ -22,6 +22,7 @@ Calculate the correlation coefficient between two variables and
 perform a significance test.
 }
 \examples{
+data <- BostonHousing
 respond <- "medv"
 predictor <-"lstat"
 res <- calculate_correlation(data, predictor, respond)

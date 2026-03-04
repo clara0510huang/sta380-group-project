@@ -22,5 +22,8 @@ Same as run_single_slr()
 Interactively select variables and run analysis.
 }
 \examples{
+data <- BostonHousing
+if(interactive()) {
 interactive_single_slr(data)
+}
 }

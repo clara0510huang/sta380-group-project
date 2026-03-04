@@ -23,3 +23,10 @@ A list containing: Bootstrap bias estimates,standard errors, etc
 \description{
 Bootstrap analysis
 }
+\examples{
+data <- BostonHousing
+respond <- "medv"
+predictor <-"lstat"
+ols_slr <- ols_estimators(data,respond, predictor)
+boot_slr<-bootstrap_slr_summary(data, R = 1000,seed = NULL,predictor,respond)
+}

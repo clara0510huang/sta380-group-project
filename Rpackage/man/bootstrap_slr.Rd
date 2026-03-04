@@ -19,6 +19,7 @@ Calculates descriptive statistics for the selected
 numerical variables, including mean, median, standard deviation,etc.
 }
 \examples{
+data <- BostonHousing
 respond <- "medv"
 predictor <-"lstat"
 respond <- "lstat"

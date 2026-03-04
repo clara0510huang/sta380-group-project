@@ -36,6 +36,7 @@ Invisibly returns the boxplot object.
 Generate boxplot and calculate IQR for selected variables
 }
 \examples{
+data <- BostonHousing
 respond <- "medv"
 predictor <- "lstat"
 plot_iqr_boxplot(data, predictor, respond)

@@ -19,21 +19,22 @@ plot_ci_box(
 
 \item{main}{Optional title}
 
+\item{col_boots}{Color of bootstrap graph}
+
 \item{col_ols}{Color of OLS ci graph. Set "red" as default.}
-
-\item{col_hist}{Color of bootstrap graph. Set "lightblue" as default.}
-
-\item{...}{Additional args passed to hist()
-respond <- "medv"
-predictor <-"lstat"
-ols_slr <- ols_estimators(data, predictor, respond)
-boot_slr<-bootstrap_slr_summary(data, R = 1000,seed = NULL,predictor,respond)
-ci_list<- bootstrap_slr_ci(boot_slr, ols_slr, level = 0.95)
-plot_ci_box(ci_list, "intercept")}
 }
 \value{
 Invisibly returns the data used for plotting
 }
 \description{
 Plot confidence interval comparison between bootstrap and OLS
+}
+\examples{
+data <- BostonHousing
+respond <- "medv"
+predictor <-"lstat"
+ols_slr <- ols_estimators(data, predictor, respond)
+boot_slr<-bootstrap_slr_summary(data, R = 1000,seed = NULL,predictor,respond)
+ci_list<- bootstrap_slr_ci(boot_slr, ols_slr, level = 0.95)
+plot_ci_box(ci_list, "intercept")
 }

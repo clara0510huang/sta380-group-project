@@ -33,6 +33,7 @@ single_slr_result list
 Single simple linear regression with bootstrap
 }
 \examples{
+data <- BostonHousing
 run_single_slr(data, "medv", "lstat")
 run_single_slr(data, respond = "rm", predictor = "ptratio", R = 2000)
 }

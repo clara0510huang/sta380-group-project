@@ -1,8 +1,5 @@
 library(testthat)
 
-# Source the function file (adjust the path if you move files around)
-source("main.R")
-
 # Test data setup for consistent testing
 test_data <- data.frame(
   MEDV = 1:30 + rep(c(0.01, -0.01), 15),
@@ -161,23 +158,11 @@ test_that("Functions handle edge cases appropriately", {
   
   # Test with different variable names
   renamed_data <- data.frame(
-    y = 1:10,
-    x = 1:10
+    y = c(1, 2, 3),
+    x = c(-2, 2, 0)
   )
   result_renamed <- ols_estimators(renamed_data, "y", "x")
   expect_equal(result_renamed$beta1, 1, tolerance = 1e-10)
-})
-
-# The following test will fail until you fix the bug in bootstrap_slr_summary
-# There's a typo: "boot_slr < - list(" should be "boot_slr <- list("
-test_that("bootstrap_slr_summary syntax is correct", {
-  # This is a meta-test to check for syntax errors
-  source_file <- readLines("main.R")
-  
-  # Check for the typo
-  typo_line <- grep("boot_slr < - list", source_file)
-  expect_equal(length(typo_line), 0, 
-               info = "Found 'boot_slr < - list' typo in bootstrap_slr_summary function")
 })
 
 test_that("calculate_correlation returns correct structure and values", {

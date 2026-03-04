@@ -41,3 +41,12 @@ Invisibly returns the histogram object
 \description{
 Plot bootstrap histogram with OLS reference line
 }
+\examples{
+data <- BostonHousing
+respond <- "medv"
+predictor <-"lstat"
+ols_slr <- ols_estimators(data, predictor, respond)
+boot_slr<-bootstrap_slr_summary(data, R = 1000,seed = NULL,predictor,respond)
+plot_boot_hist(boot_slr, ols_slr, term = "intercept")
+plot_boot_hist(boot_slr, ols_slr, term = "slope")
+}

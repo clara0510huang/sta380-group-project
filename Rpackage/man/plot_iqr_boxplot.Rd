@@ -17,9 +17,9 @@ plot_iqr_boxplot(
 \arguments{
 \item{data}{A data.frame containing the variables.}
 
-\item{predictor}{A string contains selecting variable name.}
+\item{predictor}{A string that contains the name of the predictor variable.}
 
-\item{respond}{A string contains selecting variable name.}
+\item{respond}{A string that contains the name of the response variable.}
 
 \item{col_box}{Colors of the boxplots. Default c("lightblue", "lightgreen").}
 

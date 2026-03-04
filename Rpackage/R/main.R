@@ -2,7 +2,7 @@
 #' Boston Housing Dataset
 #' @name BostonHousing
 #' @docType data
-NULL
+"BostonHousing"
 
 # Model setup
 #' Generate simple linear regression model

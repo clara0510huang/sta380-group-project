@@ -4,6 +4,13 @@
 \name{BostonHousing}
 \alias{BostonHousing}
 \title{Boston Housing Dataset}
+\format{
+An object of class \code{data.frame} with 506 rows and 14 columns.
+}
+\usage{
+BostonHousing
+}
 \description{
 Boston Housing Dataset
 }
+\keyword{datasets}

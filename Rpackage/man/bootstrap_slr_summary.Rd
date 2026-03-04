@@ -13,9 +13,9 @@ bootstrap_slr_summary(data, R = 1000, seed = NULL, predictor, respond)
 
 \item{seed}{Input seed for reproducibility}
 
-\item{predictor}{A string contains selecting variable name.}
+\item{predictor}{A string that contains the name of the predictor variable.}
 
-\item{respond}{A string contains selecting variable name.}
+\item{respond}{A string that contains the name of the response variable.}
 }
 \value{
 A list containing: Bootstrap bias estimates,standard errors, etc

@@ -18,8 +18,8 @@ NULL
 #' @description Help to calculate the OLS estimators generate by using
 #' Boston Housing dataset.
 #' @param data Boston Housing dataset.
-#' @param respond A string contains selecting variable name.
-#' @param predictor A string contains selecting variable name.
+#' @param respond A string that contains the name of the response variable.
+#' @param predictor A string that contains the name of the predictor variable.
 #' @return A list containing: beta0, beta1, ols_conf_int
 #' (95% confidence interval).
 #' @examples

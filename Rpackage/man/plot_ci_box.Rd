@@ -30,6 +30,7 @@ Invisibly returns the data used for plotting
 Plot confidence interval comparison between bootstrap and OLS
 }
 \examples{
+data(BostonHousing)
 data <- BostonHousing
 respond <- "medv"
 predictor <-"lstat"

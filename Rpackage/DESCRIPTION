@@ -17,6 +17,6 @@ VignetteBuilder: knitr
 Depends: 
     R (>= 3.5)
 LazyData: true
-Imports: 
-    ggplot2,
-    MASS
+Imports:
+    MASS,
+    ggplot2

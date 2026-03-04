@@ -20,3 +20,12 @@ A list with boot_percentile and ols_wald, each a 2x2 matrix
 \description{
 Confidence intervals for SLR coefficients (bootstrap percentile + OLS)
 }
+\examples{
+data(BostonHousing)
+data <- BostonHousing
+respond <- "medv"
+predictor <-"lstat"
+ols_slr <- ols_estimators(data,respond, predictor)
+boot_slr<-bootstrap_slr_summary(data, R = 1000,seed = NULL,predictor,respond)
+ci_list<- bootstrap_slr_ci(boot_slr, ols_slr, level = 0.95)
+}

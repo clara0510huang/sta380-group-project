@@ -30,7 +30,10 @@ run_single_slr(
 single_slr_result list
 }
 \description{
-Single simple linear regression with bootstrap
+Check if the response variable is prohibited (excluding categorical variables
+chas, rad, b), verify that the variable exists in the data, ensure that the
+response and predictor variables are different, and use \verb{ols_estimators() to calculate the ordinary least squares correlation coefficient and perform R resampling through }bootstrap_slr_summary(). Integrate the results are and
+output.
 }
 \examples{
 data(BostonHousing)

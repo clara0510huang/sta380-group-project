@@ -9,9 +9,9 @@ ols_estimators(data, predictor, respond)
 \arguments{
 \item{data}{Boston Housing dataset.}
 
-\item{predictor}{A string contains selecting variable name.}
+\item{predictor}{A string that contains the name of the predictor variable.}
 
-\item{respond}{A string contains selecting variable name.}
+\item{respond}{A string that contains the name of the response variable.}
 }
 \value{
 A list containing: beta0, beta1, ols_conf_int

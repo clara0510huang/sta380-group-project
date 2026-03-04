@@ -6,10 +6,6 @@ library(testthat)
 
 # Core functions for STA380 checkpoint: bootstrap estimation for simple linear regression
 
-# Assign the data from the csv file
-if (interactive()) {
-  data <- read.csv("BostonHousing.csv")
-}
 # Model setup
 #' Generate simple linear regression model
 #' @description Help to calculate the OLS estimators generate by using
@@ -63,15 +59,15 @@ bootstrap_slr_summary <- function(data, R = 1000,seed = NULL,
   if (!is.null(seed)) {
     set.seed(seed)
   }
-  
+
   fit0 <- lm(reformulate(predictor, respond), data = data)
   theta_hat <- unname(coef(fit0))
-  
-  # Given a matrix assign beta0 to the first column 
+
+  # Given a matrix assign beta0 to the first column
   # and beta1 to the second column.
   t.mat <- matrix(NA_real_, nrow = R, ncol = 2)
   colnames(t.mat) <- c("beta0", "beta1")
-  
+
   for(b in seq_len(R)){
     idx <- sample(seq_len(n), size = n, replace = TRUE)
     d_b = data[idx, , drop = FALSE]
@@ -79,23 +75,23 @@ bootstrap_slr_summary <- function(data, R = 1000,seed = NULL,
     # coef hat into matrix
     t.mat[b, ] <- unname(coef(fit_b))
   }
-  
+
   # get the 1st and 2nd column
   b0_star <- t.mat[, 1]
   b1_star <- t.mat[, 2]
-  
+
   #standard deviation
   b0_sd <- sd(b0_star)
   b1_sd <- sd(b1_star)
-  
+
   # calculate bias
   b0_bias <- mean(b0_star) - theta_hat[1]
   b1_bias <- mean(b1_star) - theta_hat[2]
-  
+
   # calculate percentile
   b0_per <- quantile(b0_star, probs = c(0.025, 0.975), names = FALSE)
   b1_per <- quantile(b1_star, probs = c(0.025, 0.975), names = FALSE)
-  
+
   boot_slr <- list(
     boot_b0_star = b0_star,
     boot_b1_star = b1_star,
@@ -124,19 +120,26 @@ bootstrap_slr_summary <- function(data, R = 1000,seed = NULL,
 #' boot_slr<-bootstrap_slr_summary(data, R = 1000,seed = NULL,predictor,respond)
 #' boot_table<-bootstrap_slr(boot_slr,ols_slr)
 #' @export
-bootstrap_slr <-function(boot_slr,ols_slr){
-  ols_b0 <- ols_slr$beta0
-  ols_b1 <- ols_slr$beta1
-  ols_coef<- c(intercept = ols_b0,slope = ols_b1)
-  boot_b0 <- boot_slr$boot_b0_star
-  boot_b1 <- boot_slr$boot_b1_star
-  boot_mean <- c(intercept = mean(boot_b0), slope = mean(boot_b1))
-  boot_se <- c(intercept = boot_slr$boot_b0_sd, slope = boot_slr$boot_b1_sd)
+bootstrap_slr <- function(boot_slr, ols_slr) {
+
+  ols_coef <- c(intercept = as.numeric(ols_slr$beta0),
+                slope = as.numeric(ols_slr$beta1))
+
+  boot_b0 <- as.numeric(boot_slr$boot_b0_star)
+  boot_b1 <- as.numeric(boot_slr$boot_b1_star)
+
+  boot_mean <- c(intercept = mean(boot_b0),
+                 slope = mean(boot_b1))
+
+  boot_se <- c(intercept = boot_slr$boot_b0_sd,
+               slope = boot_slr$boot_b1_sd)
+
   bias <- boot_mean - ols_coef
   variance <- boot_se^2
   mse <- variance + bias^2
-  boot_stats_table<- data.frame(
-    term = c("intercept", "slope"),
+
+  boot_stats_table <- data.frame(
+    term  = c("intercept", "slope"),
     ols = unname(ols_coef),
     boot_mean = unname(boot_mean),
     boot_se = unname(boot_se),
@@ -145,6 +148,7 @@ bootstrap_slr <-function(boot_slr,ols_slr){
     mse = unname(mse),
     row.names = NULL
   )
+
   return(boot_stats_table)
 }
 
@@ -166,9 +170,9 @@ bootstrap_slr <-function(boot_slr,ols_slr){
 calculate_correlation <- function(data, predictor, respond) {
   str <- data[[predictor]]
   obj <- data[[respond]]
-  
+
   cor_res <- cor.test(str, obj)
-  
+
   res <- list(
     correlation = as.numeric(cor_res$estimate),
     p_value = cor_res$p.value
@@ -205,13 +209,13 @@ plot_bootstrap_correlation <- function(data, predictor, respond, R = 1000, seed 
   if (!is.null(seed)) {
     set.seed(seed)
   }
-  
+
   x <- data[[predictor]]
   y <- data[[respond]]
-  
+
   # Observed correlation
   cor_obs <- cor(x, y, use = "complete.obs")
-  
+
   # Run bootstrap
   boot_data <- data.frame(x = x, y = y)
   boot_model <- boot(data = boot_data,
@@ -220,17 +224,17 @@ plot_bootstrap_correlation <- function(data, predictor, respond, R = 1000, seed 
                        return(cor(d[, 1], d[, 2], use = "complete.obs"))
                      },
                      R = R)
-  
+
   vals <- boot_model$t[, 1]
-  
+
   if (is.null(main)) {
     main <- paste0("Bootstrap Distribution of Correlation\n(Observed r = ", round(cor_obs, 3), ")")
   }
-  
+
   if (is.null(xlab)) {
     xlab <- "Correlation Coefficient"
   }
-  
+
   h <- graphics::hist(vals,
                       breaks = breaks,
                       probability = TRUE,
@@ -240,15 +244,15 @@ plot_bootstrap_correlation <- function(data, predictor, respond, R = 1000, seed 
                       border = "white",
                       ylim = c(0, 32),
                       ...)
-  
+
   n <- sum(complete.cases(x, y))
   var_r <- (1 - cor_obs^2)^2 / (n - 3)
-  
+
   graphics::curve(dnorm(x, mean = cor_obs, sd = sqrt(var_r)),
                   col = col_density,
                   lwd = 2,
                   add = TRUE)
-  
+
   graphics::legend("topright",
                    legend = c("Bootstrap", "Theoretical Normal"),
                    col = c(col_hist, col_density),
@@ -257,7 +261,7 @@ plot_bootstrap_correlation <- function(data, predictor, respond, R = 1000, seed 
                    lwd = 2,
                    bty = "n",
                    cex = 0.9)
-  
+
   return(invisible(h))
 }
 
@@ -288,11 +292,11 @@ plot_boot_hist <- function(boot_slr, ols_slr,
                            col_hist = "lightblue",
                            col_ols = "red",
                            ...) {
-  
+
   # vaild argument
   term <- match.arg(term)
-  
-  
+
+
   if (term == "intercept") {
     if (is.null(boot_slr$boot_b0_star)) {
       stop("boot_slr must contain boot_b0_star")
@@ -300,11 +304,11 @@ plot_boot_hist <- function(boot_slr, ols_slr,
     if (is.null(ols_slr$beta0)) {
       stop("ols_slr must contain beta0")
     }
-    
+
     vals <- unname(boot_slr$boot_b0_star)
     ols_val <- unname(ols_slr$beta0)
     param_name <- "Intercept"
-    
+
   } else { # slope
     if (is.null(boot_slr$boot_b1_star)) {
       stop("boot_slr must contain boot_b1_star")
@@ -312,22 +316,22 @@ plot_boot_hist <- function(boot_slr, ols_slr,
     if (is.null(ols_slr$beta1)) {
       stop("ols_slr must contain beta1")
     }
-    
+
     vals <- unname(boot_slr$boot_b1_star)
     ols_val <- unname(ols_slr$beta1)
     param_name <- "Slope"
   }
-  
+
   # set topic
   if (is.null(main)) {
     main <- paste0("Bootstrap Distribution of ", param_name,
                    "\n(OLS estimate = ", round(ols_val, 4), ")")
   }
-  
+
   if (is.null(xlab)) {
     xlab <- paste0(param_name, " Estimate")
   }
-  
+
   h <- graphics::hist(vals,
                       breaks = breaks,
                       main = main,
@@ -335,12 +339,12 @@ plot_boot_hist <- function(boot_slr, ols_slr,
                       col = col_hist,
                       border = "white",
                       ...)
-  
+
   graphics::abline(v = ols_val,
                    col = col_ols,
                    lwd = 2,
                    lty = 2)
-  
+
   graphics::legend("topright",
                    legend = paste0("OLS = ", round(ols_val, 4)),
                    col = col_ols,
@@ -348,7 +352,7 @@ plot_boot_hist <- function(boot_slr, ols_slr,
                    lty = 2,
                    bty = "n",
                    cex = 0.9)
-  
+
   invisible(h)
 }
 #' Confidence intervals for SLR coefficients (bootstrap percentile + OLS)
@@ -367,9 +371,9 @@ bootstrap_slr_ci <- function(boot_slr, ols_slr, level = 0.95) {
   boot_ci <- rbind(
     intercept = boot_slr$boot_b0_ci$percent[4:5],
     slope = boot_slr$boot_b1_ci$percent[4:5])
-  
+
   colnames(boot_ci) <- c("lower", "upper")
-  
+
   ols_ci <- ols_slr$ols_conf_int
   # Map to intercept/slope rows in a stable way
   ols_ci2 <- rbind(
@@ -377,7 +381,7 @@ bootstrap_slr_ci <- function(boot_slr, ols_slr, level = 0.95) {
     slope = as.numeric(ols_ci[2, ])
   )
   colnames(ols_ci2) <- c("lower", "upper")
-  
+
   ci_list <- list(boot_perc = boot_ci, ols_wald = ols_ci2)
   return(ci_list)
 }
@@ -401,12 +405,12 @@ plot_ci_box <- function(ci_list, term = c("intercept", "slope"), main = NULL,
                         col_boots = "lightblue",
                         col_ols = "red"
                         #col_ols = "red",
-                        #decomp_data = NULL, 
+                        #decomp_data = NULL,
                         #bar_palette = "Set2"
 ) {
   # Validate term argument
   term <- match.arg(term)
-  
+
   # Select row index based on term
   if (term == "intercept") {
     boot_ci <- ci_list$boot_perc[1, ] # First row is intercept
@@ -417,24 +421,24 @@ plot_ci_box <- function(ci_list, term = c("intercept", "slope"), main = NULL,
     ols_ci <- ci_list$ols_wald[2, ] # Second row is slope
     param_name <- "Slope"
   }
-  
+
   # Set default title if not provided
   if (is.null(main)) {
     main <- paste(param_name, "95% CI: Bootstrap vs OLS")
   }
-  
+
   # Prepare data for plotting
   dat <- list(
     method = c("Bootstrap (percentile)", "OLS (Wald)"),
     lower = c(boot_ci[1], ols_ci[1]), # First column is lower bound
     upper = c(boot_ci[2], ols_ci[2]) # Second column is upper bound
   )
-  
+
   # Calculate y-axis range with some padding
   y_range <- range(c(dat$lower, dat$upper))
   y_padding <- diff(y_range) * 0.1
   y_range <- c(y_range[1] - y_padding, y_range[2] + y_padding)
-  
+
   # Create empty plot
   graphics::plot(NA,
                  xlim = c(0.5, 2.5),
@@ -444,34 +448,34 @@ plot_ci_box <- function(ci_list, term = c("intercept", "slope"), main = NULL,
                  ylab = "Coefficient value",
                  main = main,
                  cex.main = 1.2)
-  
+
   # Add x-axis labels
   graphics::axis(1, at = 1:2, labels = dat$method, cex.axis = 0.9)
-  
+
   # Add light grid for better readability
   graphics::grid(nx = NA, ny = NULL, lty = 3, col = "lightgray")
-  
+
   # Draw confidence intervals
   for (i in 1:2) {
     # Main vertical line (the interval)
     graphics::segments(i, dat$lower[i], i, dat$upper[i],
                        lwd = 3, col = c(col_boots, col_ols)[i])
-    
+
     # Lower horizontal cap
     graphics::segments(i - 0.08, dat$lower[i], i + 0.08, dat$lower[i],
                        lwd = 3, col = c(col_boots, col_ols)[i])
-    
+
     # Upper horizontal cap
     graphics::segments(i - 0.08, dat$upper[i], i + 0.08, dat$upper[i],
                        lwd = 3, col = c(col_boots, col_ols)[i])
-    
+
     # Add numeric label at the midpoint (optional)
     mid_point <- (dat$lower[i] + dat$upper[i]) / 2
     graphics::text(i, mid_point,
                    sprintf("[%.3f, %.3f]", dat$lower[i], dat$upper[i]),
                    pos = 4, cex = 0.8, offset = 0.5)
   }
-  
+
   # Add legend
   graphics::legend("topright",
                    legend = c("Bootstrap", "OLS"),
@@ -480,14 +484,14 @@ plot_ci_box <- function(ci_list, term = c("intercept", "slope"), main = NULL,
                    bty = "n",
                    cex = 0.9)
   # if (!is.null(decomp_data)) {
-  
+
   #plot_data <- data.frame(
   # term = rep(decomp_data$term, 3),
   #component = factor(rep(c("Bias²", "Variance", "MSE"), each = 2),
   #                  levels = c("Bias²", "Variance", "MSE")),
   #value = c(decomp_data$bias^2, decomp_data$variance, decomp_data$mse)
   #)
-  
+
   #p <- ggplot(plot_data, aes(x = term, y = value, fill = component)) +
   #geom_col(position = "dodge") +
   #scale_fill_brewer(palette = bar_palette) +
@@ -503,30 +507,30 @@ plot_ci_box <- function(ci_list, term = c("intercept", "slope"), main = NULL,
   #plot.title = element_text(hjust = 0.5, face = "bold"),
   # plot.subtitle = element_text(hjust = 0.5)
   #)
-  
-  #print(p)  
+
+  #print(p)
   #}
   # Return data invisibly
   invisible(dat)
 }
 
 #' LR vs Bootstrap Scatter Comparison Plot
-#' @description Creates a scatter plot comparing linear regression model's 
+#' @description Creates a scatter plot comparing linear regression model's
 #' estimators with bootstrap parameter estimates.
 #' @param ols_slr A list containing OLS estimates made by ols_estimators()
 #' @param boot_slr A list containing bootstrap estimates made
 #'  by bootstrap_slr_summary()
-#' @param color_boot Bootstrap points color 
-#' @param color_contour Density contour color 
-#' @param color_lr LR estimate point color 
-#' @param color_mean Bootstrap mean point color 
-#' @param color_arrow Bias arrow color 
-#' @param alpha_boot Transparency of bootstrap points 
-#' @param alpha_contour Transparency of density contours 
-#' @param size_boot Size of bootstrap points 
-#' @param size_lr Size of LR estimate point 
-#' @param size_mean Size of mean point 
-#' @param size_arrow arrow size 
+#' @param color_boot Bootstrap points color
+#' @param color_contour Density contour color
+#' @param color_lr LR estimate point color
+#' @param color_mean Bootstrap mean point color
+#' @param color_arrow Bias arrow color
+#' @param alpha_boot Transparency of bootstrap points
+#' @param alpha_contour Transparency of density contours
+#' @param size_boot Size of bootstrap points
+#' @param size_lr Size of LR estimate point
+#' @param size_mean Size of mean point
+#' @param size_arrow arrow size
 #' @return A ggplot object of LR vs Bootstrap Scatter Comparison Plot
 #' @examples
 #' respond <- "medv"
@@ -536,7 +540,7 @@ plot_ci_box <- function(ci_list, term = c("intercept", "slope"), main = NULL,
 #' plot_lr_bootstrap_scatter(ols_slr, boot_slr)
 #' @importform ggplot2
 #' @export
-plot_lr_bootstrap_scatter <- function(ols_slr, 
+plot_lr_bootstrap_scatter <- function(ols_slr,
                                       boot_slr,
                                       color_boot = "#56B4E9",
                                       color_contour = "#2C3E50",
@@ -549,35 +553,35 @@ plot_lr_bootstrap_scatter <- function(ols_slr,
                                       size_lr = 6,
                                       size_mean = 5,
                                       size_arrow = 1) {
-  
-  # Create dataframe for bootstrap estimates 
+
+  # Create dataframe for bootstrap estimates
   boot_df <- data.frame(
-    intercept = boot_slr$boot_b0_star,  
-    slope = boot_slr$boot_b1_star        
+    intercept = boot_slr$boot_b0_star,
+    slope = boot_slr$boot_b1_star
   )
-  
+
   # OLS estimates from original sample
-  lr_intercept <- ols_slr$beta0  
-  lr_slope <- ols_slr$beta1       
-  
-  # Bootstrap means 
-  boot_mean_intercept <- mean(boot_df$intercept)  
-  boot_mean_slope <- mean(boot_df$slope)           
-  
+  lr_intercept <- ols_slr$beta0
+  lr_slope <- ols_slr$beta1
+
+  # Bootstrap means
+  boot_mean_intercept <- mean(boot_df$intercept)
+  boot_mean_slope <- mean(boot_df$slope)
+
   # Create scatter plot
   p <- ggplot(boot_df, aes(x = intercept, y = slope)) +
     geom_point(alpha = alpha_boot, color = color_boot, size = size_boot) +
     geom_density_2d(color = color_contour, alpha = alpha_contour) +
-    geom_point(aes(x = lr_intercept, y = lr_slope), 
+    geom_point(aes(x = lr_intercept, y = lr_slope),
                color = color_lr, size = size_lr, shape = 18) +
-    
-    # Bootstrap mean point: 
+
+    # Bootstrap mean point:
     geom_point(aes(x = boot_mean_intercept, y = boot_mean_slope),
                color = color_mean, size = size_mean, shape = 8) +
-    
+
     labs(
       title = "Comparison of Bootstrap estimation and OLS estimation",
-      subtitle = paste0("Points: Bootstrap estimates (R=", nrow(boot_df), 
+      subtitle = paste0("Points: Bootstrap estimates (R=", nrow(boot_df),
                         " replicates)\n",
                         "Diamond: OLS estimates | Asterisk: Bootstrap means"),
       x = expression("Intercept" ~ hat(beta)[0]),
@@ -589,14 +593,14 @@ plot_lr_bootstrap_scatter <- function(ols_slr,
       plot.subtitle = element_text(hjust = 0.5, size = 11, color = "gray40"),
       panel.grid.minor = element_blank()
     ) +
-    
+
     # Bias arrow: from bootstrap to ols
     # Shows bias estimate
     geom_segment(aes(x = boot_mean_intercept, y = boot_mean_slope,
                      xend = lr_intercept, yend = lr_slope),
                  arrow = arrow(length = unit(0.2, "cm")),
                  color = color_arrow, size = size_arrow, linetype = "dashed")
-  
+
   return(p)
 }
 #' Generate boxplot and calculate IQR for selected variables
@@ -613,29 +617,29 @@ plot_lr_bootstrap_scatter <- function(ols_slr,
 #' predictor <- "lstat"
 #' plot_iqr_boxplot(data, predictor, respond)
 #' @export
-plot_iqr_boxplot <- function(data, 
-                             predictor, 
+plot_iqr_boxplot <- function(data,
+                             predictor,
                              respond,
                              col_box = c("lightblue", "lightgreen"),
                              main = NULL,
                              ylab = "Value",
                              ...) {
-  
+
   # Validate input variables
   if (!predictor %in% names(data)) stop("Predictor not found in data")
   if (!respond %in% names(data)) stop("Response not found in data")
-  
+
   # Calculate IQR for both variables
   iqr_p <- stats::IQR(data[[predictor]], na.rm = TRUE)
   iqr_r <- stats::IQR(data[[respond]], na.rm = TRUE)
-  
+
   # Set dynamic title with IQR values included
   if (is.null(main)) {
     main <- paste0("Boxplot of ", predictor, " vs ", respond,
-                   "\n(IQR: ", predictor, " = ", round(iqr_p, 2), 
+                   "\n(IQR: ", predictor, " = ", round(iqr_p, 2),
                    ", ", respond, " = ", round(iqr_r, 2), ")")
   }
-  
+
   # Generate side-by-side boxplot using base graphics
   b <- graphics::boxplot(data[[predictor]], data[[respond]],
                          names = c("Predictor", "Response"),
@@ -643,7 +647,116 @@ plot_iqr_boxplot <- function(data,
                          main = main,
                          ylab = ylab,
                          ...)
-  
+
   # Invisibly return the plot object
   invisible(b)
 }
+
+#' Single simple linear regression with bootstrap
+#'
+#' @param data data frame with Boston Housing data
+#' @param respond response variable name (y). Cannot be "chas", "rad" or "b"
+#' @param predictor predictor variable name (x)
+#' @param R number of bootstrap replications
+#' @param seed random seed for reproducibility
+#' @param verbose print progress messages
+#' @return single_slr_result list
+#' @examples
+#' run_single_slr(data, "medv", "lstat")
+#' run_single_slr(data, respond = "rm", predictor = "ptratio", R = 2000)
+#' @export
+run_single_slr <- function(data,
+                           respond   = "medv",
+                           predictor = "lstat",
+                           R         = 1000,
+                           seed      = 2025,
+                           verbose   = TRUE) {
+
+  forbidden <- c("chas", "rad", "b")
+
+  if (respond %in% forbidden) {
+    stop("'", respond, "' cannot be response (forbidden: categorical/binary or ethical issues)")
+  }
+  if (!respond %in% names(data))    stop("Response '", respond, "' not found")
+  if (!predictor %in% names(data))  stop("Predictor '", predictor, "' not found")
+  if (respond == predictor)         stop("Response and predictor cannot be the same")
+
+  if (verbose) cat("Analyzing:", respond, "~", predictor, "\n")
+
+  ols <- tryCatch(ols_estimators(data, predictor, respond), error = function(e) {
+    if (verbose) message("OLS failed: ", e$message); NULL })
+  if (is.null(ols)) return(invisible(NULL))
+
+  boot_res <- tryCatch(bootstrap_slr_summary(data, R = R, seed = seed, predictor, respond), error = function(e) {
+    if (verbose) message("Bootstrap failed: ", e$message); NULL })
+  if (is.null(boot_res)) return(invisible(NULL))
+
+  tbl <- bootstrap_slr(boot_res, ols)
+  cor_res <- try(calculate_correlation(data, predictor, respond), silent = TRUE)
+
+  structure(list(respond = respond, predictor = predictor, ols = ols,
+                 bootstrap = boot_res, summary_table = tbl, correlation = cor_res),
+            class = "single_slr_result")
+}
+
+
+#' Interactive Single SLR + Bootstrap
+#'
+#' Interactively select variables and run analysis.
+#'
+#' @param data Boston Housing data frame
+#' @param R Bootstrap replications, set default as 1000
+#' @param seed Random seed, set default as 2025
+#' @param verbose Show messages
+#' @return Same as run_single_slr()
+#' @examples
+#' interactive_single_slr(data)
+#' @export
+interactive_single_slr <- function(data,
+                                   R      = 1000,
+                                   seed   = 2025,
+                                   verbose = TRUE) {
+
+  forbidden <- c("chas", "rad", "b")
+  all_vars <- sort(names(data))
+  allowed_y <- setdiff(all_vars, forbidden)
+
+  if (length(allowed_y) == 0) stop("No valid response variables available")
+
+  cat("\nAvailable variables:", paste(all_vars, collapse = " "), "\n")
+  cat("Excluded as response (y):", paste(forbidden, collapse = ", "), "\n\n")
+
+  cat("Select response (y):\n")
+  respond <- select.list(allowed_y, title = "Response (y)", multiple = FALSE)
+  if (respond == "") stop("No response selected")
+
+  remaining <- setdiff(all_vars, respond)
+
+  cat("\nSelect predictor (x):\n")
+  predictor <- select.list(remaining, title = "Predictor (x)", multiple = FALSE)
+  if (predictor == "") stop("No predictor selected")
+
+  cat("\nModel:", respond, "~", predictor, "\n")
+  if (menu(c("Run", "Choose again")) != 1) {
+    return(interactive_single_slr(data, R, seed, verbose))
+  }
+
+  cat("\nRunning...\n\n")
+  run_single_slr(data, respond, predictor, R, seed, verbose)
+}
+
+
+# Print method
+print.single_slr_result <- function(x, ...) {
+  cat("SLR + Bootstrap\nModel:", x$respond, "~", x$predictor, "\n\n")
+
+  if (!is.null(x$correlation) && !inherits(x$correlation, "try-error")) {
+    cat("Correlation: r =", round(x$correlation$correlation, 4),
+        " (p =", format.pval(x$correlation$p_value, digits = 4), ")\n\n")
+  }
+
+  cat("Summary:\n")
+  print(x$summary_table, row.names = FALSE)
+  invisible(x)
+}
+

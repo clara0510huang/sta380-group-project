@@ -1,23 +1,21 @@
 ---
-title: "Bootstrap Estimation for Boston Housing"
+title: "my-vignette"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Bootstrap Estimation for Boston Housing}
+  %\VignetteIndexEntry{my-vignette}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-bibliography: bibliography.bib
-nocite: "@*"
 ---
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
-  warning = FALSE,
-  message = FALSE,
-  fig.width = 7,
-  fig.height = 6
+  comment = "#>"
 )
+```
+
+```{r setup}
+library(Rpackage)
 ```
 
 This example demonstrates how to perform ***bootstrap estimation for Simple Linear Regression (SLR)*** using the Boston Housing Dataset.
@@ -25,9 +23,6 @@ This example demonstrates how to perform ***bootstrap estimation for Simple Line
 We use the response variable `medv` and the predictor variable `lstat` as an example. We will generate a linear regression model first and then use bootstrap resampling to estimate the sampling variability, bias, and confidence intervals of the intercept and slope.
 
 ```{r setup}
-data <- read.csv("BostonHousing.csv")
-source("main.R")
-
 # Example variables
 respond <- "medv"
 predictor <- "lstat"
@@ -212,7 +207,7 @@ In the main.R,  AI provide suggestions on how to visualize the comparison of Boo
 
 When debugging the test_bootstrap_boston, prompted to AI with "Why does the R=100 causing error", the ChatGPT indicates that actually, setting R = 100 itself didn't trigger the red fatal error. The red crosses we saw on lines 124 and 128 during tests were definitely due to the insetting of the variable R. This helped with locating the error in "main.R", which setted R = 1000 inside the function, causing R = 100 in the test giving error.
 
-AI also gave me suggestions on plotting the IQR and Bootstrap distribution plots for the correlation coefficient, and it provided a clear template approach along with some ideas for writing the code. Those helped me a lot to write my own code.
+AI also gave  suggestions on plotting the IQR and Bootstrap distribution plots for the correlation coefficient, and it provided a clear template approach along with some ideas for writing the code. Those helped a lot with writing our code.
 
 All final choices, variable selections, implementations, interpretations, and visualizations were reviewed and edited by the authors.
 

@@ -29,8 +29,6 @@ if (interactive()) {
 #' @importFrom stats confint
 #' @export
 ols_estimators<-function(data,predictor,respond){
-  #check the data if run correctly
-  head(data)
   # Setup the linear regression model
   lr_model <- lm(reformulate(predictor, respond), data = data)
   model_summary <- summary(lr_model)
@@ -50,13 +48,11 @@ ols_estimators<-function(data,predictor,respond){
 #' @param respond A string contains selecting variable name.
 #' @param predictor A string contains selecting variable name.
 #' @return A list containing: Bootstrap bias estimates,standard errors, etc
-#' @example
+#' @examples
 #' respond <- "medv"
 #' predictor <-"lstat"
 #' ols_slr <- ols_estimators(data,respond, predictor)
 #' boot_slr<-bootstrap_slr_summary(data, R = 1000,seed = NULL,predictor,respond)
-#' @importFrom boot boot
-#' @importForm boot boot.ci
 #' @export
 bootstrap_slr_summary <- function(data, R = 1000,seed = NULL,
                                   predictor,respond){
@@ -64,6 +60,9 @@ bootstrap_slr_summary <- function(data, R = 1000,seed = NULL,
     set.seed(seed)
   }
   
+  n <- nrow(data)
+  
+  #calculate OLS original estimation
   fit0 <- lm(reformulate(predictor, respond), data = data)
   theta_hat <- unname(coef(fit0))
   
@@ -85,16 +84,16 @@ bootstrap_slr_summary <- function(data, R = 1000,seed = NULL,
   b1_star <- t.mat[, 2]
   
   #standard deviation
-  b0_sd <- sd(b0_star)
-  b1_sd <- sd(b1_star)
+  b0_sd <- sd(b0_star, na.rm = TRUE)
+  b1_sd <- sd(b1_star, na.rm = TRUE)
   
   # calculate bias
-  b0_bias <- mean(b0_star) - theta_hat[1]
-  b1_bias <- mean(b1_star) - theta_hat[2]
+  b0_bias <- mean(b0_star, na.rm = TRUE) - theta_hat[1]
+  b1_bias <- mean(b1_star, na.rm = TRUE) - theta_hat[2]
   
   # calculate percentile
-  b0_per <- quantile(b0_star, probs = c(0.025, 0.975), names = FALSE)
-  b1_per <- quantile(b1_star, probs = c(0.025, 0.975), names = FALSE)
+  b0_perc <- quantile(b0_star, probs = c(0.025, 0.975), names = FALSE, na.rm = TRUE)
+  b1_perc <- quantile(b1_star, probs = c(0.025, 0.975), names = FALSE, na.rm = TRUE)
   
   boot_slr <- list(
     boot_b0_star = b0_star,
@@ -108,6 +107,7 @@ bootstrap_slr_summary <- function(data, R = 1000,seed = NULL,
   )
   return(boot_slr)
 }
+
 # Output Implementation
 #' Bootstrap Summary Table
 #'@description Calculates descriptive statistics for the selected
@@ -220,16 +220,21 @@ plot_bootstrap_correlation <- function(data, predictor, respond, R = 1000, seed 
   # Observed correlation
   cor_obs <- cor(x, y, use = "complete.obs")
   
-  # Run bootstrap
+  #Bootstrap
+  n <- nrow(data)
   boot_data <- data.frame(x = x, y = y)
-  boot_model <- boot(data = boot_data,
-                     statistic = function(data, indices) {
-                       d <- data[indices, ]
-                       return(cor(d[, 1], d[, 2], use = "complete.obs"))
-                     },
-                     R = R)
   
-  vals <- boot_model$t[, 1]
+  # Create a vector to store the correlation coefficients
+  t.vec <- rep(NA_real_, R)
+  
+  for(b in seq_len(R)){
+    idx <- sample(seq_len(n), size = n, replace = TRUE)
+    d_b = boot_data[idx, , drop = FALSE]
+    # calculate correlation
+    t.vec[b] <- cor(d_b[, 1], d_b[, 2], use = "complete.obs")
+  }
+  
+  vals <- t.vec
   
   if (is.null(main)) {
     main <- paste0("Bootstrap Distribution of Correlation\n(Observed r = ", round(cor_obs, 3), ")")

@@ -48,8 +48,8 @@ ols_estimators<-function(data,predictor,respond){
 #' @param data Boston Housoing dataset
 #' @param R Number of bootstrap samples (set as 1000)
 #' @param seed Input seed for reproducibility
-#' @param respond A string contains selecting variable name.
-#' @param predictor A string contains selecting variable name.
+#' @param respond A string that contains the name of the response variable.
+#' @param predictor A string that contains the name of the predictor variable.
 #' @return A list containing: Bootstrap bias estimates,standard errors, etc
 #' @examples
 #' data <- BostonHousing
@@ -165,8 +165,8 @@ bootstrap_slr <- function(boot_slr, ols_slr) {
 #' @description Calculate the correlation coefficient between two variables and
 #' perform a significance test.
 #' @param data A data frame containing the variables
-#' @param respond A string contains selecting variable name.
-#' @param predictor A string contains selecting variable name.
+#' @param respond A string that contains the name of the response variable.
+#' @param predictor A string that contains the name of the predictor variable.
 #' @return Returns a list containing the followings:
 #' correlation coefficient, p-value
 #' @importFrom stats cor.test
@@ -195,8 +195,8 @@ calculate_correlation <- function(data, predictor, respond) {
 #' Bootstrap Distribution Plot for Correlation Coefficient
 #' @description Performs bootstrap resampling to estimate the distribution of the correlation coefficient.
 #' @param data A data.frame containing the variables.
-#' @param predictor A string contains selecting variable name.
-#' @param respond A string contains selecting variable name.
+#' @param predictor A string that contains the name of the predictor variable.
+#' @param respond A string that contains the name of the response variable.
 #' @param R Number of bootstrap samples (set as 1000).
 #' @param seed Input seed for reproducibility.
 #' @param breaks Histogram breaks passed to hist(). Default "Sturges".

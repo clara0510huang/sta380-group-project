@@ -628,8 +628,8 @@ plot_lr_bootstrap_scatter <- function(ols_slr,
 }
 #' Generate boxplot and calculate IQR for selected variables
 #' @param data A data.frame containing the variables.
-#' @param predictor A string contains selecting variable name.
-#' @param respond A string contains selecting variable name.
+#' @param respond A string that contains the name of the response variable.
+#' @param predictor A string that contains the name of the predictor variable.
 #' @param col_box Colors of the boxplots. Default c("lightblue", "lightgreen").
 #' @param main Optional title. If NULL, generates automatic title.
 #' @param ylab Optional y-axis label.

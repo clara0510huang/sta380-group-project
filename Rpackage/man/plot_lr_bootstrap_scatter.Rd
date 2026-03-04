@@ -56,6 +56,7 @@ Creates a scatter plot comparing linear regression model's
 estimators with bootstrap parameter estimates.
 }
 \examples{
+data(BostonHousing)
 data <- BostonHousing
 respond <- "medv"
 predictor <-"lstat"

@@ -42,6 +42,7 @@ Invisibly returns the histogram object
 Plot bootstrap histogram with OLS reference line
 }
 \examples{
+data(BostonHousing)
 data <- BostonHousing
 respond <- "medv"
 predictor <-"lstat"

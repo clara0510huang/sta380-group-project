@@ -22,6 +22,7 @@ Help to calculate the OLS estimators generate by using
 Boston Housing dataset.
 }
 \examples{
+data(BostonHousing)
 data <- BostonHousing
 respond <- "medv"
 predictor <- "lstat"

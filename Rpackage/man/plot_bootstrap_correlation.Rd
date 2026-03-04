@@ -48,6 +48,7 @@ A histogram object for correlation coefficient.
 Performs bootstrap resampling to estimate the distribution of the correlation coefficient.
 }
 \examples{
+data(BostonHousing)
 data <- BostonHousing
 respond <- "medv"
 predictor <- "lstat"

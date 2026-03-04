@@ -24,6 +24,7 @@ A list containing: Bootstrap bias estimates,standard errors, etc
 Bootstrap analysis
 }
 \examples{
+data(BostonHousing)
 data <- BostonHousing
 respond <- "medv"
 predictor <-"lstat"

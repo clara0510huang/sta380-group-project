@@ -1,10 +1,12 @@
 ---
-title: "my-vignette"
-output: rmarkdown::html_vignette
+title: "Bootstrap Estimation for Boston Housing"
+output: pdf_document
 vignette: >
   %\VignetteIndexEntry{my-vignette}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+bibliography: bibliography.bib
+nocite: "@*"
 ---
 
 ```{r, include = FALSE}
@@ -19,7 +21,7 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(Rpackage)
-data <- BostonHousing
+data<-BostonHousing
 ```
 
 This example demonstrates how to perform ***bootstrap estimation for Simple Linear Regression (SLR)*** using the Boston Housing Dataset.

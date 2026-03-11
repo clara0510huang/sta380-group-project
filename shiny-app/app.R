@@ -2,8 +2,6 @@ library(shiny)
 library(ggplot2)
 library(MASS)
 
-source("../Rpachage/R/main.R")
-
 #UI design
 ui <- fluidPage(
   titlePanel("STA380: Bootstrap Estimation of SLR for Boston Housing Data"),

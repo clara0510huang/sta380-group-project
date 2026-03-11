@@ -1,7 +1,7 @@
 load("../Rpackage/data/BostonHousing.rda")
 my_data <- BostonHousing
 
-all_vals <- names(MASS::Boston)
+all_vals <- names(my_data)
 forbidden <- c("chas", "rad", "b")
 allowed <- setdiff(all_vals, forbidden)
 

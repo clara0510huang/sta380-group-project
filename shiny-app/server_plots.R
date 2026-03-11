@@ -14,7 +14,7 @@ observeEvent(input$run_btn, {
   
   #Calculations
   ols_res <- ols_estimators(data = my_data, predictor = x_var, respond = y_var)
-  boot_res <- bootstrap_slr_summary(data = my_data, R = r_num, seed = num, predictor = x_var, respond = y_var)
+  boot_res <- bootstrap_slr_summary(data = my_data, R = r_num, seed = seed_num, predictor = x_var, respond = y_var)
   
   #Generating Plots
   output$scatter_plot <- renderPlot({
@@ -22,6 +22,7 @@ observeEvent(input$run_btn, {
   })
   
   output$summary_table <- renderPrint({
+    boot_tbl <- bootstrap_slr(boot_slr = boot_res, ols_slr = ols_res)
     print(boot_tbl, row.names = FALSE)
   })
   

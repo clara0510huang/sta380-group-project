@@ -13,7 +13,13 @@ ui <- fluidPage(
       h4("LR vs Bootstrap Scatter Plot"),
       plotOutput("scatter_plot"),
       h4("Bootstrap Summary Statistics"),
-      verbatimTextOutput("summary_table")
+      verbatimTextOutput("summary_table"),
+      h4("Bootstrap correlation histogram and Pearson correlation"),
+      plotOutput("boot_cor_hist"),
+      verbatimTextOutput("pearson_cor"),
+      h4("IQR Boxplot of Predictor and Response"),
+      plotOutput("iqr_boxplot"),
+      verbatimTextOutput("iqr_text")
     )
   )
 )

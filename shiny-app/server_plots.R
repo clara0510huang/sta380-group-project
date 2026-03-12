@@ -21,6 +21,29 @@ observeEvent(input$run_btn, {
     plot_lr_bootstrap_scatter(ols_slr = ols_res, boot_slr = boot_res)
   })
   
+  #Bootstrap histogram
+  output$boot_hist_plot <- renderPlot({
+    plot_boot_hist(
+      boot_slr = boot_res,
+      ols_slr = ols_res,
+      term = input$boot_hist_term
+    )
+  })
+  
+  #CI comparison plot
+  output$ci_compare_plot <- renderPlot({
+    ci_list <- bootstrap_slr_ci(
+      boot_slr = boot_res,
+      ols_slr = ols_res,
+      level = 0.95
+    )
+    
+    plot_ci_box(
+      ci_list = ci_list,
+      term = input$ci_term
+    )
+  })
+  
   #Bootstrap correlation histogram and Pearson correlation
   output$boot_cor_hist <- renderPlot({
     plot_bootstrap_correlation(
@@ -60,6 +83,4 @@ observeEvent(input$run_btn, {
   })
   
   removeNotification(id = "loading")
-  }
-)
-
+})

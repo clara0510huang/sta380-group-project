@@ -5,9 +5,13 @@ observeEvent(input$run_btn, {
   r_num <- input$r_val
   seed_num <- input$seed_val
   
+  #Color Selection
+  col_scatter <- input$color_scatter
+  col_hist <- input$color_hist
+  
   #Error-proofing
   if (y_var == x_var) {
-    showNotification("Error, Respond and Predictor cannot be same", type == "error")
+    showNotification("Error, Respond and Predictor cannot be same", type = "error")
     return()
   }
   showNotification("Loading Bootstrap...", id = "loading", duration = NULL, type = "message")
@@ -18,7 +22,7 @@ observeEvent(input$run_btn, {
   
   #Generating Plots
   output$scatter_plot <- renderPlot({
-    plot_lr_bootstrap_scatter(ols_slr = ols_res, boot_slr = boot_res)
+    plot_lr_bootstrap_scatter(ols_slr = ols_res, boot_slr = boot_res, color_boot = col_scatter)
   })
   
   #Bootstrap histogram
@@ -26,7 +30,8 @@ observeEvent(input$run_btn, {
     plot_boot_hist(
       boot_slr = boot_res,
       ols_slr = ols_res,
-      term = input$boot_hist_term
+      term = input$boot_hist_term,
+      col_hist = col_hist
     )
   })
   
@@ -40,7 +45,8 @@ observeEvent(input$run_btn, {
     
     plot_ci_box(
       ci_list = ci_list,
-      term = input$ci_term
+      term = input$ci_term,
+      col_boots = col_scatter
     )
   })
   
@@ -51,7 +57,8 @@ observeEvent(input$run_btn, {
       predictor = x_var,
       respond   = y_var,
       R         = r_num,
-      seed      = seed_num
+      seed      = seed_num,
+      col_hist = col_hist
     )
   })
   

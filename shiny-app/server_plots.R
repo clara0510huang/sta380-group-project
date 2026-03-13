@@ -21,12 +21,66 @@ observeEvent(input$run_btn, {
     plot_lr_bootstrap_scatter(ols_slr = ols_res, boot_slr = boot_res)
   })
   
+  #Bootstrap histogram
+  output$boot_hist_plot <- renderPlot({
+    plot_boot_hist(
+      boot_slr = boot_res,
+      ols_slr = ols_res,
+      term = input$boot_hist_term
+    )
+  })
+  
+  #CI comparison plot
+  output$ci_compare_plot <- renderPlot({
+    ci_list <- bootstrap_slr_ci(
+      boot_slr = boot_res,
+      ols_slr = ols_res,
+      level = 0.95
+    )
+    
+    plot_ci_box(
+      ci_list = ci_list,
+      term = input$ci_term
+    )
+  })
+  
+  #Bootstrap correlation histogram and Pearson correlation
+  output$boot_cor_hist <- renderPlot({
+    plot_bootstrap_correlation(
+      data      = my_data,
+      predictor = x_var,
+      respond   = y_var,
+      R         = r_num,
+      seed      = seed_num
+    )
+  })
+  
+  output$pearson_cor <- renderPrint({
+    res <- calculate_correlation(my_data, x_var, y_var)
+    cat(sprintf("Pearson r = %.4f    p-value = %.4e\n", 
+                res$correlation, res$p_value))
+  })
+  
+  #IQR boxplot and values
+  output$iqr_boxplot <- renderPlot({
+    plot_iqr_boxplot(
+      data      = my_data,
+      predictor = x_var,
+      respond   = y_var
+    )
+  })
+  
+  output$iqr_text <- renderPrint({
+    iqr_x <- IQR(my_data[[x_var]], na.rm = TRUE)
+    iqr_y <- IQR(my_data[[y_var]], na.rm = TRUE)
+    cat(sprintf("IQR(%s) = %.3f\nIQR(%s) = %.3f\n", 
+                x_var, iqr_x, y_var, iqr_y))
+  })
+  
   output$summary_table <- renderPrint({
     boot_tbl <- bootstrap_slr(boot_slr = boot_res, ols_slr = ols_res)
     print(boot_tbl, row.names = FALSE)
   })
   
   removeNotification(id = "loading")
-  }
-)
-
+})

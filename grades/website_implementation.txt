@@ -1,0 +1,30 @@
+Some comments:
+
+I think generally some of the "bootstrap summary statistics" could be formatted better.
+
+In particular, right now you have:
+     term        ols  boot_mean    boot_se         bias     variance
+ intercept  5.6493608  5.6496101 0.18257496 2.493072e-04 0.0333336155
+     slope -0.1465509 -0.1465242 0.01080845 2.670403e-05 0.0001168225
+          mse
+ 0.0333336776
+ 0.0001168232
+
+I would prefer if you had a nicely formatted table instead of just printed output code.
+
+Similarly goes with:
+Pearson r = -0.4970
+p-value = 6.3563e-33
+
+and 
+
+IQR(lstat) = 10.005
+IQR(dis) = 3.088
+
+I think you should also give a description of the actual dataset. Like what is the Boston Housing Data about? What does "OLS" mean here? (I have an idea of what you mean, but it's good to be explicit.) 
+
+It would also be good to have a page on the website that explains what each variable is in the housing data, so we get an idea of what the model is telling us.
+
+I'm not too concerned regarding group work; it seems like everyone has put in an appropriate amount of commits. Well done with cooperation!
+
+1/1

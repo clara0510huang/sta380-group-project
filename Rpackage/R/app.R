@@ -2,7 +2,7 @@ library(shiny)
 library(ggplot2)
 library(MASS)
 
-source("../Rpachage/R/main.R")
+source("../Rpackage/R/main.R")
 
 #Error-proofing
 all_vals <- names(MASS::Boston)

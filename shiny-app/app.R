@@ -48,7 +48,7 @@ ui <- fluidPage(
           condition = "input.info_present.includes('IQR')",
           h4("IQR Boxplot of Predictor and Response"),
           plotOutput("iqr_boxplot"),
-          uiOutput("iqr_text")
+          uiOutput("iqr_values")
         ),
         conditionalPanel(
           condition = "input.info_present.includes('CI')",

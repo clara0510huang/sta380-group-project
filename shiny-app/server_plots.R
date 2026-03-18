@@ -69,10 +69,13 @@ observeEvent(input$run_btn, {
 
   output$pearson_cor <- renderUI({
     res <- calculate_correlation(my_data, x_var, y_var)
-    HTML(sprintf("<b>Pearson correlation:</b><br>
-               r = %.4f<br>
-               p-value = %.3e", 
-                 res$correlation, res$p_value))
+    output$pearson_cor <- renderUI({
+      res <- calculate_correlation(my_data, x_var, y_var)
+      HTML(sprintf(
+        "<pre style='font-size:14px;'>Pearson r(%s, %s) = %.4f<br>p-value= %.3e</pre>",
+        x_var, y_var, res$correlation, res$p_value
+      ))
+    })
   })
 
   #IQR boxplot and values
@@ -82,6 +85,12 @@ observeEvent(input$run_btn, {
       predictor = x_var,
       respond   = y_var
     )
+    output$iqr_values <- renderUI({
+      iqr_x <- IQR(my_data[[x_var]], na.rm = TRUE)
+      iqr_y <- IQR(my_data[[y_var]], na.rm = TRUE)
+      HTML(sprintf("<pre style='font-size:14px;'>IQR(%s) = %.4f<br>IQR(%s) = %.4f</pre>",
+                   x_var, iqr_x, y_var, iqr_y))
+    })  
   })
 
   output$summary_table <- renderUI({

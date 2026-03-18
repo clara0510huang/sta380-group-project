@@ -1,6 +1,8 @@
 library(shiny)
 library(ggplot2)
 library(MASS)
+library(kableExtra)
+library(dplyr)
 
 source(file.path("intro_content.R"), local = TRUE)
 # UI design
@@ -28,13 +30,13 @@ ui <- fluidPage(
         conditionalPanel(
           condition = "input.info_present.includes('Summary')",
           h4("Bootstrap Summary Statistics"),
-          verbatimTextOutput("summary_table")
+          uiOutput("summary_table")
         ),
         conditionalPanel(
           condition = "input.info_present.includes('Correlation Histogram')",
           h4("Bootstrap correlation histogram and Pearson correlation"),
           plotOutput("boot_cor_hist"),
-          verbatimTextOutput("pearson_cor")
+          uiOutput("pearson_cor")
         ),
         conditionalPanel(
           condition = "input.info_present.includes('Bootstrap Histogram')",
@@ -46,7 +48,7 @@ ui <- fluidPage(
           condition = "input.info_present.includes('IQR')",
           h4("IQR Boxplot of Predictor and Response"),
           plotOutput("iqr_boxplot"),
-          verbatimTextOutput("iqr_text")
+          uiOutput("iqr_text")
         ),
         conditionalPanel(
           condition = "input.info_present.includes('CI')",

@@ -67,10 +67,12 @@ observeEvent(input$run_btn, {
     )
   })
 
-  output$pearson_cor <- renderPrint({
+  output$pearson_cor <- renderUI({
     res <- calculate_correlation(my_data, x_var, y_var)
-    cat(sprintf("Pearson r = %.4f\np-value = %.4e\n",
-                res$correlation, res$p_value))
+    HTML(sprintf("<b>Pearson correlation:</b><br>
+               r = %.4f<br>
+               p-value = %.3e", 
+                 res$correlation, res$p_value))
   })
 
   #IQR boxplot and values
@@ -82,17 +84,29 @@ observeEvent(input$run_btn, {
     )
   })
 
-  output$iqr_text <- renderPrint({
-    iqr_x <- IQR(my_data[[x_var]], na.rm = TRUE)
-    iqr_y <- IQR(my_data[[y_var]], na.rm = TRUE)
-    cat(sprintf("IQR(%s) = %.3f\nIQR(%s) = %.3f\n",
-                x_var, iqr_x, y_var, iqr_y))
+  output$summary_table <- renderUI({
+    boot_tbl <- bootstrap_slr(boot_slr = boot_res, ols_slr = ols_res)
+    
+    boot_tbl <- boot_tbl %>% 
+      mutate(
+        across(c(ols, boot_mean, boot_se), ~ sprintf("%.6f", .)),
+        across(c(bias, variance), ~ sprintf("%.2e", .))
+      )
+    
+    kbl(boot_tbl, 
+        caption = "Bootstrap Summary Statistics",
+        digits = 6,
+        format.args = list(big.mark = ",", scientific = FALSE)) %>%
+      kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+                    full_width = FALSE,
+                    position = "left") %>%
+
+      column_spec(1, bold = TRUE, border_right = TRUE) %>%  
+      row_spec(0, background = "#D3D3D3", bold = TRUE) %>%  
+      footnote(general = "Based on OLS and Bootstrap (R = {r_num})") %>%
+      HTML() 
   })
 
-  output$summary_table <- renderPrint({
-    boot_tbl <- bootstrap_slr(boot_slr = boot_res, ols_slr = ols_res)
-    print(boot_tbl, row.names = FALSE)
-  })
 
   removeNotification(id = "loading")
 })

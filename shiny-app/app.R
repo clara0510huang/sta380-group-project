@@ -2,9 +2,13 @@ library(shiny)
 library(ggplot2)
 library(MASS)
 library(DT)
+library(kableExtra)
 library(dplyr)
 
+source("R/main.R")
+source("R/ui_inputs.R")
 source(file.path("intro_content.R"), local = TRUE)
+
 # UI design
 ui <- fluidPage(
   titlePanel("STA380: Bootstrap Estimation of SLR for Boston Housing Data"),

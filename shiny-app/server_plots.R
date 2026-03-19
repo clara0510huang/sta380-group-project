@@ -132,3 +132,4 @@ observeEvent(input$run_btn, {
 
   removeNotification(id = "loading")
 })
+})

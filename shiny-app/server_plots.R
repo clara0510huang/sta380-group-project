@@ -92,7 +92,7 @@ observeEvent(input$run_btn, {
   })
 
   output$summary_table <- renderUI({
-    req(boot_res, ols_res)  
+    req(boot_res, ols_res)
     
     boot_tbl <- bootstrap_slr(boot_slr = boot_res, ols_slr = ols_res)
     
@@ -102,22 +102,22 @@ observeEvent(input$run_btn, {
         across(c(bias, variance), ~ sprintf("%.2e", .))
       )
     
-      kbl(boot_tbl,
-          caption = "Bootstrap Summary Statistics",
-          align = "c",
-          digits = 6,
-          format.args = list(big.mark = ",", scientific = FALSE)) %>%
-        kable_styling(
-          bootstrap_options = c("striped", "hover", "condensed", "responsive"),
-          full_width = FALSE,
-          position = "center"
-        ) %>%
-        column_spec(1:ncol(boot_tbl), border_right = TRUE) %>%  
-        column_spec(1, bold = TRUE) %>%              
-        row_spec(0, background = "#D3D3D3", bold = TRUE, extra_css = "text-align: center;") %>%
-        footnote(general = sprintf("Based on OLS and Bootstrap (R = %d)", input$r_val)) %>%
-        HTML()
-    })
+    kbl(boot_tbl,
+        caption = "Bootstrap Summary Statistics",
+        align = "c",                   
+        digits = 6,
+        format.args = list(big.mark = ",", scientific = FALSE)) %>%
+      kable_styling(
+        bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"),  
+        full_width = FALSE,
+        position = "center"
+      ) %>%
+
+      column_spec(1, bold = TRUE) %>%   
+      row_spec(0, background = "#D3D3D3", bold = TRUE) %>%   
+      footnote(general = sprintf("Based on OLS and Bootstrap (R = %d)", input$r_val)) %>%
+      HTML()
+  })
 
   removeNotification(id = "loading")
 })

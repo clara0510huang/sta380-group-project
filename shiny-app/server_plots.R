@@ -102,17 +102,6 @@ observeEvent(input$run_btn, {
         across(c(bias, variance), ~ sprintf("%.2e", .))
       )
     
-    output$summary_table <- renderUI({
-      req(boot_res, ols_res)
-      
-      boot_tbl <- bootstrap_slr(boot_slr = boot_res, ols_slr = ols_res)
-      
-      boot_tbl <- boot_tbl %>%
-        mutate(
-          across(c(ols, boot_mean, boot_se), ~ sprintf("%.6f", .)),
-          across(c(bias, variance), ~ sprintf("%.2e", .))
-        )
-      
       kbl(boot_tbl,
           caption = "Bootstrap Summary Statistics",
           align = "c",
@@ -131,5 +120,4 @@ observeEvent(input$run_btn, {
     })
 
   removeNotification(id = "loading")
-})
 })

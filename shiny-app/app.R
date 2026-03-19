@@ -2,7 +2,6 @@ library(shiny)
 library(ggplot2)
 library(MASS)
 library(DT)
-datatable(iris)
 library(dplyr)
 
 source(file.path("intro_content.R"), local = TRUE)

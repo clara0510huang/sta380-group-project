@@ -29,17 +29,6 @@ my_inputs <- tagList(
   selectInput("color_hist", "Histogram Color:", choices = color_choices, selected = "seagreen"),
   hr(),
   
-  #6 checkbox select output
-  checkboxGroupInput("info_present", "Select Output to Show",
-                     choices = c(
-                       "Scatter Plot (LR vs Bootstrap)" = "Scatter Plot",
-                       "Bootstrap Summary Table" = "Summary",
-                       "Correlation Histogram" = "Correlation Histogram",
-                       "Bootstrap Histogram (Intercept/Slope)" = "Bootstrap Histogram",
-                       "CI Comparison (Bootstrap vs OLS)" = "CI",
-                       "IQR Boxplot" = "IQR"
-                     ),
-                     selected = c("Scatter Plot","Correlation Histogram", "Bootstrap Histogram","Summary", "CI", "IQR")),
-  actionButton("run_btn", "Run Analysis...", class = "btn-primary", style = "width: 100%; margin-top: 15px;")
+  actionButton("run_btn", "Run Analysis...", class = "btn-primary", style = "width: 100%;")
 )
 

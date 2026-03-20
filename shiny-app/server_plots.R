@@ -67,12 +67,17 @@ observeEvent(input$run_btn, {
     )
   })
 
-  output$pearson_cor <- renderUI({
+  output$pearson_cor <- renderDT({
     res <- calculate_correlation(my_data, x_var, y_var)
-    HTML(sprintf(
-      "<pre style='font-size:14px;'>Pearson r(%s, %s) = %.4f<br>p-value = %.3e</pre>",
-      x_var, y_var, res$correlation, res$p_value
-    ))
+    cor_df <- data.frame(
+      Statistic = c("Pearson r", "p-value"),
+      Value = c(sprintf("%.4f", res$correlation), sprintf("%.3e", res$p_value))
+    )
+    datatable(
+      cor_df,
+      class = 'cell-border stripe',
+      options = list(dom = 't', ordering = FALSE, autoWidth = TRUE)
+    )
   })
 
   #IQR boxplot and values
@@ -84,39 +89,39 @@ observeEvent(input$run_btn, {
     )
   })
   
-  output$iqr_values <- renderUI({
+  output$iqr_values <- renderDT({
     iqr_x <- IQR(my_data[[x_var]], na.rm = TRUE)
     iqr_y <- IQR(my_data[[y_var]], na.rm = TRUE)
-    HTML(sprintf("<pre style='font-size:14px;'>IQR(%s) = %.4f<br>IQR(%s) = %.4f</pre>",
-                 x_var, iqr_x, y_var, iqr_y))
+    iqr_df <- data.frame(
+      Variable = c(paste("Predictor (", x_var, ")", sep = ""),
+                   paste("Response (", y_var, ")", sep = "")),
+      IQR = c(sprintf("%.4f", iqr_x), sprintf("%.4f", iqr_y))
+    )
+    
+    datatable(
+      iqr_df,
+      rownames = FALSE,
+      class = 'cell-border stripe',
+      options = list(dom = 't', ordering = FALSE, autoWidth = TRUE)
+    )
   })
 
-  output$summary_table <- renderUI({
-    req(boot_res, ols_res)
-    
+  output$summary_table <- renderDT({
     boot_tbl <- bootstrap_slr(boot_slr = boot_res, ols_slr = ols_res)
     
-    boot_tbl <- boot_tbl %>%
-      mutate(
-        across(c(ols, boot_mean, boot_se), ~ sprintf("%.6f", .)),
-        across(c(bias, variance), ~ sprintf("%.2e", .))
+    datatable(
+      boot_tbl,
+      rownames = FALSE,
+      colnames = c("Term", "OLS Estimate", "Bootstrap Mean", "Bootstrap SE", "Bias", "Variance", "MSE"),
+      options = list(
+        dom = 't',
+        ordering = FALSE,
+        autoWidth = TRUE
       )
-    
-    kbl(boot_tbl,
-        caption = "Bootstrap Summary Statistics",
-        align = "c",                   
-        digits = 6,
-        format.args = list(big.mark = ",", scientific = FALSE)) %>%
-      kable_styling(
-        bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"),  
-        full_width = FALSE,
-        position = "center"
-      ) %>%
-
-      column_spec(1, bold = TRUE) %>%   
-      row_spec(0, background = "#D3D3D3", bold = TRUE) %>%   
-      footnote(general = sprintf("Based on OLS and Bootstrap (R = %d)", input$r_val)) %>%
-      HTML()
+    ) %>%
+      formatRound(columns = c("ols", "boot_mean", "boot_se"), digits = 3) %>%
+      formatSignif(columns = c("bias", "variance", "mse"), digits = 3) %>%
+      formatStyle('term', fontWeight = 'bold')
   })
 
   removeNotification(id = "loading")

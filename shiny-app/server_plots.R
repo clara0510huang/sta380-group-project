@@ -67,31 +67,61 @@ observeEvent(input$run_btn, {
     )
   })
 
-  output$pearson_cor <- renderPrint({
+  output$pearson_cor <- renderDT({
     res <- calculate_correlation(my_data, x_var, y_var)
-    cat(sprintf("Pearson r = %.4f\np-value = %.4e\n",
-                res$correlation, res$p_value))
+    cor_df <- data.frame(
+      Statistic = c("Pearson r", "p-value"),
+      Value = c(sprintf("%.4f", res$correlation), sprintf("%.3e", res$p_value))
+    )
+    datatable(
+      cor_df,
+      class = 'cell-border stripe',
+      options = list(dom = 't', ordering = FALSE, autoWidth = TRUE)
+    )
   })
 
   #IQR boxplot and values
   output$iqr_boxplot <- renderPlot({
     plot_iqr_boxplot(
-      data      = my_data,
+      data = my_data,
       predictor = x_var,
-      respond   = y_var
+      respond = y_var
+    )
+  })
+  
+  output$iqr_values <- renderDT({
+    iqr_x <- IQR(my_data[[x_var]], na.rm = TRUE)
+    iqr_y <- IQR(my_data[[y_var]], na.rm = TRUE)
+    iqr_df <- data.frame(
+      Variable = c(paste("Predictor (", x_var, ")", sep = ""),
+                   paste("Response (", y_var, ")", sep = "")),
+      IQR = c(sprintf("%.4f", iqr_x), sprintf("%.4f", iqr_y))
+    )
+    
+    datatable(
+      iqr_df,
+      rownames = FALSE,
+      class = 'cell-border stripe',
+      options = list(dom = 't', ordering = FALSE, autoWidth = TRUE)
     )
   })
 
-  output$iqr_text <- renderPrint({
-    iqr_x <- IQR(my_data[[x_var]], na.rm = TRUE)
-    iqr_y <- IQR(my_data[[y_var]], na.rm = TRUE)
-    cat(sprintf("IQR(%s) = %.3f\nIQR(%s) = %.3f\n",
-                x_var, iqr_x, y_var, iqr_y))
-  })
-
-  output$summary_table <- renderPrint({
+  output$summary_table <- renderDT({
     boot_tbl <- bootstrap_slr(boot_slr = boot_res, ols_slr = ols_res)
-    print(boot_tbl, row.names = FALSE)
+    
+    datatable(
+      boot_tbl,
+      rownames = FALSE,
+      colnames = c("Term", "OLS Estimate", "Bootstrap Mean", "Bootstrap SE", "Bias", "Variance", "MSE"),
+      options = list(
+        dom = 't',
+        ordering = FALSE,
+        autoWidth = TRUE
+      )
+    ) %>%
+      formatRound(columns = c("ols", "boot_mean", "boot_se"), digits = 3) %>%
+      formatSignif(columns = c("bias", "variance", "mse"), digits = 3) %>%
+      formatStyle('term', fontWeight = 'bold')
   })
 
   removeNotification(id = "loading")

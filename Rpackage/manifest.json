@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "locale": "en_US",
+  "platform": "4.5.2",
+  "metadata": {
+    "appmode": "static",
+    "primary_rmd": null,
+    "primary_html": "doc/my-vignette.html",
+    "content_category": null,
+    "has_parameters": false
+  },
+  "packages": null,
+  "files": {
+    ".Rbuildignore": {
+      "checksum": "a459e6315d59b44ee16da1b1690314f8"
+    },
+    "data/BostonHousing.rda": {
+      "checksum": "4cb61c27b2b5aac0a5c727551f6e67f8"
+    },
+    "DESCRIPTION": {
+      "checksum": "7fbc00143a4095da62a78065f3f1818b"
+    },
+    "doc/my-vignette.html": {
+      "checksum": "3fb7f477a70dd40778c3cbe73864027a"
+    },
+    "doc/my-vignette.R": {
+      "checksum": "ff3c1eedc4cf58cf9a146ee057b7c30a"
+    },
+    "doc/my-vignette.Rmd": {
+      "checksum": "18f93fe430559a69030bad6a6c5f0f82"
+    },
+    "LICENSE": {
+      "checksum": "6697422eb8679230c3b3d5b15733727b"
+    },
+    "LICENSE.md": {
+      "checksum": "ad390fa6f7d24a323efdfec40efd7b92"
+    },
+    "man/bootstrap_slr_ci.Rd": {
+      "checksum": "e6172d8e08635ecc0aa5fb9002f1e7ff"
+    },
+    "man/bootstrap_slr_summary.Rd": {
+      "checksum": "877971ede2df6726c68328cad44f58cf"
+    },
+    "man/bootstrap_slr.Rd": {
+      "checksum": "4a690823987b038e168be6fb41bd8c22"
+    },
+    "man/BostonHousing.Rd": {
+      "checksum": "3ec880841e4fa7b8dfb38cb773cb1f39"
+    },
+    "man/calculate_correlation.Rd": {
+      "checksum": "b4c3a17ececaa337765acc67da299d75"
+    },
+    "man/ols_estimators.Rd": {
+      "checksum": "97c068a155c5cb4d6eabd590801848a3"
+    },
+    "man/plot_boot_hist.Rd": {
+      "checksum": "12a492367fad580c45b95d4ce87f8a72"
+    },
+    "man/plot_bootstrap_correlation.Rd": {
+      "checksum": "bd5c1c0040abb4ca80dd5e121ec537cd"
+    },
+    "man/plot_ci_box.Rd": {
+      "checksum": "49eb2e5c5d833f91e1740c9009482d0b"
+    },
+    "man/plot_iqr_boxplot.Rd": {
+      "checksum": "ee765a07a4cf89e569e8f354444fbd01"
+    },
+    "man/plot_lr_bootstrap_scatter.Rd": {
+      "checksum": "4cd74e0579f907e52ea123f2ad5520b6"
+    },
+    "man/run_single_slr.Rd": {
+      "checksum": "f5a28e2a2b465a9f0d3acb5d48221dd1"
+    },
+    "Meta/vignette.rds": {
+      "checksum": "f474a2b1313e6e772fedb5a2cc85df8a"
+    },
+    "NAMESPACE": {
+      "checksum": "bc16db3d8b208639a73912621980ba81"
+    },
+    "R/app.R": {
+      "checksum": "12c138c387f864368c5dd4ced7433908"
+    },
+    "R/main.R": {
+      "checksum": "8220413c87001bf526d89efcc6a0f0fe"
+    },
+    "R/ui_inputs.R": {
+      "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "tests/testthat.R": {
+      "checksum": "6d14d8228312c05ac1306ab8d794ed18"
+    },
+    "tests/testthat/Rplots.pdf": {
+      "checksum": "6e0acc6ab83bce00c216901463826096"
+    },
+    "tests/testthat/test_bootstrap_boston.R": {
+      "checksum": "89a1629d0fdaf0d5f2f2e297e1a3e4b4"
+    },
+    "vignettes/bibliography.bib": {
+      "checksum": "ec435959c6a1f2d03d74fe5b947206b9"
+    },
+    "vignettes/my-vignette.html": {
+      "checksum": "de65af7ecd21c51eb815766f7ff11374"
+    },
+    "vignettes/my-vignette.Rmd": {
+      "checksum": "05d3c8ec256ec2994e8ac8e89c9edadf"
+    }
+  },
+  "users": null
+}
